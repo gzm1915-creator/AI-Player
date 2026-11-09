@@ -10,7 +10,7 @@
 
 船员任务导航、原 StudyBot 小游戏技能、样本培养后离开再返回；附近玩家观测、中文位置、路线和目击记录；会议读取、工具发言与投票/弃票；普通内鬼假任务、巡场、机会追踪、击杀、主动破坏及管道撤离。面板可停止自动控制、暂停记录或清理插件历史。
 
-主要适配 Windows x64、Steam IL2CPP、The Skeld、普通船员与普通内鬼。游戏编译参考 Steam build **25134893**；其他版本、地图、特殊角色及模组组合未充分验证。真人多人环境的效果不能由离线测试保证。
+主要适配 Windows x64、Steam IL2CPP、The Skeld,目前技能组只适用于普通船员与普通内鬼。游戏编译参考 Steam build **25134893**；其他版本、地图、特殊角色及模组组合未充分验证。真人多人环境的效果不能由离线测试保证。
 
 ## 安装教程
 
@@ -35,7 +35,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "
 3. 启动 **Among us 虚拟玩家**，打开“游戏控制”面板，在“Among Us 游戏目录”输入路径并“保存并重新连接”。不需要修改 N.E.K.O. 本体，也无需配置第二份模型密钥。
 4. 若版本没有导入按钮，按该版本官方文档将 `plugin/among_us_neko` 放入**用户插件目录**并刷新，不要修改程序安装目录。
 
-**其他 AI：**游戏端安装相同，按 [HOST_INTEGRATION.md](HOST_INTEGRATION.md) 编写宿主适配。不要求安装或运行 N.E.K.O. 才能访问游戏接口；当前没有其他宿主的联调兼容保证。
+**其他 AI：**游戏端安装相同，按 [HOST_INTEGRATION.md](HOST_INTEGRATION.md) 编写宿主适配。后续准备专门做一个面板,填写供应商API key即可游玩.
 
 ### 三、小游戏技能（自动做任务时配置）
 
