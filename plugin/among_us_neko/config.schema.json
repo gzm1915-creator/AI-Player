@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "among_us": {
+      "type": "object",
+      "title": "Among Us 游戏连接",
+      "properties": {
+        "game_dir": {
+          "type": "string",
+          "title": "Among Us 游戏目录",
+          "description": "填写含 Among Us.exe 的完整目录，可在Steam管理→浏览本地文件中找到。保存后重启此插件。",
+          "default": ""
+        }
+      },
+      "required": ["game_dir"]
+    }
+  }
+}

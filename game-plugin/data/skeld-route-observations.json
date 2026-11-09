@@ -1,0 +1,4351 @@
+{
+  "schemaVersion": "1.0.0",
+  "mapId": "TheSkeld",
+  "anchors": [
+    {
+      "anchorId": "cafeteria.default_start",
+      "position": {
+        "x": -0.781414,
+        "y": 2.170088
+      },
+      "roomId": "Cafeteria",
+      "kind": "observed_start"
+    },
+    {
+      "anchorId": "cafeteria.east_departure",
+      "position": {
+        "x": 0.0004,
+        "y": 2.1382
+      },
+      "roomId": "Cafeteria",
+      "kind": "trace_waypoint"
+    },
+    {
+      "anchorId": "cafeteria.southeast_bypass_west",
+      "position": {
+        "x": 1.1523,
+        "y": 0.9916
+      },
+      "roomId": "Cafeteria",
+      "kind": "trace_waypoint"
+    },
+    {
+      "anchorId": "cafeteria.southeast_bypass_east",
+      "position": {
+        "x": 2.3292,
+        "y": 0.8148
+      },
+      "roomId": "Cafeteria",
+      "kind": "trace_waypoint"
+    },
+    {
+      "anchorId": "weapons.arrival_default_path",
+      "position": {
+        "x": 9.157184,
+        "y": 1.064801
+      },
+      "roomId": "Weapons",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "cafeteria.returned_default",
+      "position": {
+        "x": -0.6819,
+        "y": 2.2347
+      },
+      "roomId": "Cafeteria",
+      "kind": "observed_return"
+    },
+    {
+      "anchorId": "weapons.smooth_arrival",
+      "position": {
+        "x": 9.050491,
+        "y": 1.03855
+      },
+      "roomId": "Weapons",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "cafeteria.native_runner_return",
+      "position": {
+        "x": -0.6234,
+        "y": 2.2284
+      },
+      "roomId": "Cafeteria",
+      "kind": "observed_return"
+    },
+    {
+      "anchorId": "weapons.guided_start",
+      "position": {
+        "x": 8.9122,
+        "y": 1.0177
+      },
+      "roomId": "Weapons",
+      "kind": "room_route_anchor"
+    },
+    {
+      "anchorId": "junction.right.01",
+      "position": {
+        "x": 9.1756,
+        "y": -3.5269
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "junction"
+    },
+    {
+      "anchorId": "o2.guided_arrival",
+      "position": {
+        "x": 6.790166,
+        "y": -3.526907
+      },
+      "roomId": "O2",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "weapons.returned_from_o2",
+      "position": {
+        "x": 8.8782,
+        "y": 0.9823
+      },
+      "roomId": "Weapons",
+      "kind": "observed_return"
+    },
+    {
+      "anchorId": "hallway_big_y.east_turn",
+      "position": {
+        "x": 11.8151,
+        "y": -3.5379
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "corridor_bend"
+    },
+    {
+      "anchorId": "junction.right.02",
+      "position": {
+        "x": 11.815058,
+        "y": -5.204583
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "junction"
+    },
+    {
+      "anchorId": "navigation.guided_arrival",
+      "position": {
+        "x": 16.988533,
+        "y": -5.09572
+      },
+      "roomId": "Navigation",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "hallway_big_y.shields_south_turn",
+      "position": {
+        "x": 11.6818,
+        "y": -6.8557
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "corridor_bend"
+    },
+    {
+      "anchorId": "hallway_big_y.shields_west_turn",
+      "position": {
+        "x": 9.6425,
+        "y": -6.9651
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "corridor_bend"
+    },
+    {
+      "anchorId": "shields.guided_arrival",
+      "position": {
+        "x": 9.642466,
+        "y": -12.811722
+      },
+      "roomId": "Shields",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "junction.right.03",
+      "position": {
+        "x": 5.226519,
+        "y": -12.557614
+      },
+      "roomId": "Hallway_South",
+      "kind": "junction"
+    },
+    {
+      "anchorId": "communications.guided_arrival",
+      "position": {
+        "x": 3.68664,
+        "y": -16.034916
+      },
+      "roomId": "Communications",
+      "kind": "observed_destination"
+    },
+    {
+      "anchorId": "storage.orbit.right",
+      "position": {
+        "x": 0.237253,
+        "y": -12.627762
+      },
+      "roomId": "Storage",
+      "kind": "room_navigation_anchor"
+    },
+    {
+      "anchorId": "storage.orbit.bottom",
+      "position": {
+        "x": -1.689522,
+        "y": -15.721194
+      },
+      "roomId": "Storage",
+      "kind": "room_navigation_anchor"
+    },
+    {
+      "anchorId": "storage.orbit.left",
+      "position": {
+        "x": -4.49007,
+        "y": -12.837318
+      },
+      "roomId": "Storage",
+      "kind": "room_navigation_anchor"
+    },
+    {
+      "anchorId": "storage.orbit.top",
+      "position": {
+        "x": -1.809823,
+        "y": -10.073738
+      },
+      "roomId": "Storage",
+      "kind": "room_navigation_anchor"
+    },
+    {
+      "anchorId": "junction.left.03",
+      "position": {
+        "x": -9.549818,
+        "y": -14.829548
+      },
+      "roomId": "Hallway_Cross",
+      "kind": "junction"
+    },
+    {
+      "anchorId": "admin.anchor.bottom",
+      "position": {
+        "x": 4.641275,
+        "y": -10.08626
+      },
+      "roomId": "Admin",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "junction.center",
+      "position": {
+        "x": -0.672254,
+        "y": -7.351861
+      },
+      "kind": "junction"
+    },
+    {
+      "anchorId": "admin.anchor.top",
+      "position": {
+        "x": 4.554445,
+        "y": -7.61816
+      },
+      "roomId": "Admin",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "electrical.anchor.bottom",
+      "position": {
+        "x": -8.457791,
+        "y": -11.762928
+      },
+      "roomId": "Electrical",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "electrical.anchor.top",
+      "position": {
+        "x": -8.041126,
+        "y": -8.929606
+      },
+      "roomId": "Electrical",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "engine.lower",
+      "position": {
+        "x": -15.252331,
+        "y": -11.954123
+      },
+      "roomId": "LowerEngine",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "junction.left.02",
+      "position": {
+        "x": -17.002337,
+        "y": -5.620815
+      },
+      "kind": "junction"
+    },
+    {
+      "anchorId": "reactor.entry",
+      "position": {
+        "x": -20.8357,
+        "y": -5.620815
+      },
+      "roomId": "Reactor",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "security.entry",
+      "position": {
+        "x": -13.669004,
+        "y": -5.620815
+      },
+      "roomId": "Security",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "engine.upper",
+      "position": {
+        "x": -15.325397,
+        "y": 0.808254
+      },
+      "roomId": "UpperEngine",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "junction.left.01",
+      "position": {
+        "x": -9.158753,
+        "y": 0.808254
+      },
+      "kind": "junction"
+    },
+    {
+      "anchorId": "medical.entry",
+      "position": {
+        "x": -9.158753,
+        "y": -4.608406
+      },
+      "roomId": "MedBay",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "cafeteria.left",
+      "position": {
+        "x": -3.350868,
+        "y": 0.763628
+      },
+      "roomId": "Cafeteria",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "cafeteria.right",
+      "position": {
+        "x": 3.502483,
+        "y": 0.822564
+      },
+      "roomId": "Cafeteria",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "cafeteria.bottom",
+      "position": {
+        "x": -0.798064,
+        "y": -3.193464
+      },
+      "roomId": "Cafeteria",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "skeld.admin.upload-data",
+      "position": {
+        "x": 2.297502,
+        "y": -6.865455
+      },
+      "roomId": "Admin",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.admin.swipe-card",
+      "position": {
+        "x": 5.920769,
+        "y": -9.131477
+      },
+      "roomId": "Admin",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.medical.med-bay",
+      "position": {
+        "x": -6.842609,
+        "y": -4.477408
+      },
+      "roomId": "MedBay",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.reactor.unlock-manifolds",
+      "position": {
+        "x": -22.267708,
+        "y": -2.709762
+      },
+      "roomId": "Reactor",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cafeteria.data",
+      "position": {
+        "x": 3.388745,
+        "y": 4.250078
+      },
+      "roomId": "Cafeteria",
+      "kind": "task"
+    },
+    {
+      "anchorId": "cafeteria.right.tasks",
+      "position": {
+        "x": 2.692324,
+        "y": 1.259672
+      },
+      "roomId": "Cafeteria",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "skeld.cafeteria.garbage",
+      "position": {
+        "x": 4.017282,
+        "y": 3.584628
+      },
+      "roomId": "Cafeteria",
+      "kind": "task"
+    },
+    {
+      "anchorId": "cafeteria.right.data_start",
+      "position": {
+        "x": 3.17353,
+        "y": 0.958043
+      },
+      "roomId": "Cafeteria",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "skeld.weapons.upload-data",
+      "position": {
+        "x": 8.681377,
+        "y": 3.371168
+      },
+      "roomId": "Weapons",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.life-support.garbage",
+      "position": {
+        "x": 4.952065,
+        "y": -3.974675
+      },
+      "roomId": "O2",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.life-support.clean-filter",
+      "position": {
+        "x": 6.050969,
+        "y": -3.32263
+      },
+      "roomId": "O2",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.life-support.divert-power",
+      "position": {
+        "x": 8.273933,
+        "y": -3.151497
+      },
+      "roomId": "O2",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.stabilize-steering",
+      "position": {
+        "x": 18.251003,
+        "y": -5.414916
+      },
+      "roomId": "Navigation",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.chart-course",
+      "position": {
+        "x": 17.2,
+        "y": -3.5
+      },
+      "roomId": "Navigation",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.upload-data",
+      "position": {
+        "x": 16.770159,
+        "y": -3.114719
+      },
+      "roomId": "Navigation",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.divert-power",
+      "position": {
+        "x": 15.913121,
+        "y": -3.108975
+      },
+      "roomId": "Navigation",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.shields.shield",
+      "position": {
+        "x": 7.523178,
+        "y": -14.484334
+      },
+      "roomId": "Shields",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.shields.divert-power",
+      "position": {
+        "x": 9.9,
+        "y": -11.2
+      },
+      "roomId": "Shields",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.weapons.divert-power",
+      "position": {
+        "x": 10.75,
+        "y": 1.9
+      },
+      "roomId": "Weapons",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.comms.divert-power",
+      "position": {
+        "x": 6.200145,
+        "y": -14.73084
+      },
+      "roomId": "Communications",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.comms.upload-data",
+      "position": {
+        "x": 4.404158,
+        "y": -14.779786
+      },
+      "roomId": "Communications",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.storage.gas-can",
+      "position": {
+        "x": -3.048656,
+        "y": -14.473248
+      },
+      "roomId": "Storage",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.storage.garbage.runtime",
+      "position": {
+        "x": 0.754389,
+        "y": -17.08708
+      },
+      "roomId": "Storage",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.electrical.upload-data",
+      "position": {
+        "x": -9.706697,
+        "y": -8.050133
+      },
+      "roomId": "Electrical",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.electrical.divert-power",
+      "position": {
+        "x": -8.842886,
+        "y": -8.073382
+      },
+      "roomId": "Electrical",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.electrical.fix-wiring",
+      "position": {
+        "x": -7.802544,
+        "y": -8.101381
+      },
+      "roomId": "Electrical",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.electrical.calibrate",
+      "position": {
+        "x": -5.882361,
+        "y": -8.235921
+      },
+      "roomId": "Electrical",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.storage.fix-wiring",
+      "position": {
+        "x": -1.940469,
+        "y": -9.398191
+      },
+      "roomId": "Storage",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.admin.fix-wiring",
+      "position": {
+        "x": 1.330376,
+        "y": -6.973653
+      },
+      "roomId": "Admin",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cafeteria.fix-wiring",
+      "position": {
+        "x": -5.102864,
+        "y": 4.736699
+      },
+      "roomId": "Cafeteria",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.left-engine.divert-power",
+      "position": {
+        "x": -17.367289,
+        "y": 2.621597
+      },
+      "roomId": "UpperEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.left-engine.fuel-engine",
+      "position": {
+        "x": -18.038925,
+        "y": -0.606695
+      },
+      "roomId": "UpperEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.left-engine.align-engine",
+      "position": {
+        "x": -19.30045,
+        "y": -1.222925
+      },
+      "roomId": "UpperEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.security.fix-wiring.runtime",
+      "position": {
+        "x": -15.270208,
+        "y": -5.159951
+      },
+      "roomId": "Security",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.security.divert-power",
+      "position": {
+        "x": -12.125886,
+        "y": -3.64059
+      },
+      "roomId": "Security",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.reactor.start-reactor",
+      "position": {
+        "x": -21.323185,
+        "y": -5.725533
+      },
+      "roomId": "Reactor",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.reactor.divert-power.runtime",
+      "position": {
+        "x": -20.11623,
+        "y": -3.746189
+      },
+      "roomId": "Reactor",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.right-engine.divert-power",
+      "position": {
+        "x": -18.039848,
+        "y": -9.814977
+      },
+      "roomId": "LowerEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.right-engine.align-engine",
+      "position": {
+        "x": -18.3,
+        "y": -13.3
+      },
+      "roomId": "LowerEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.right-engine.fuel-engine",
+      "position": {
+        "x": -18.014517,
+        "y": -12.813073
+      },
+      "roomId": "LowerEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.medical.med-scanner",
+      "position": {
+        "x": -7.0134,
+        "y": -5.2476
+      },
+      "roomId": "MedBay",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.left-engine.vent-cleaning",
+      "position": {
+        "x": -15.288,
+        "y": 1.7
+      },
+      "roomId": "UpperEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.fix-wiring",
+      "position": {
+        "x": 14.52,
+        "y": -4.85
+      },
+      "roomId": "Navigation",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.admin.vent-cleaning",
+      "position": {
+        "x": 2.544,
+        "y": -9.955201
+      },
+      "roomId": "Admin",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.right-engine.vent-cleaning",
+      "position": {
+        "x": -15.2508,
+        "y": -13.656001
+      },
+      "roomId": "LowerEngine",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cockpit.fix-wiring.approach",
+      "position": {
+        "x": 14.409935,
+        "y": -4.697855
+      },
+      "roomId": "Navigation",
+      "kind": "waypoint"
+    },
+    {
+      "anchorId": "skeld.reactor.vent-cleaning.lower",
+      "position": {
+        "x": -20.80004,
+        "y": -7.146178
+      },
+      "roomId": "Reactor",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.reactor.vent-cleaning.upper",
+      "position": {
+        "x": -21.519308,
+        "y": -3.399985
+      },
+      "roomId": "Reactor",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.cafeteria.vent-cleaning",
+      "position": {
+        "space": "unity_world",
+        "x": 4.2588,
+        "y": -0.276
+      },
+      "roomId": "Cafeteria",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.big-y.vent",
+      "position": {
+        "space": "unity_world",
+        "x": 9.384,
+        "y": -6.438
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.cockpit.vent.north",
+      "position": {
+        "space": "unity_world",
+        "x": 16.008002,
+        "y": -3.168
+      },
+      "roomId": "Navigation",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.cockpit.vent.south",
+      "position": {
+        "space": "unity_world",
+        "x": 16.008002,
+        "y": -6.384
+      },
+      "roomId": "Navigation",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.electrical.vent",
+      "position": {
+        "space": "unity_world",
+        "x": -9.784,
+        "y": -8.028
+      },
+      "roomId": "Electrical",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.left-engine.vent",
+      "position": {
+        "space": "unity_world",
+        "x": -15.288,
+        "y": 2.52
+      },
+      "roomId": "UpperEngine",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.medical.vent",
+      "position": {
+        "space": "unity_world",
+        "x": -10.608,
+        "y": -4.176
+      },
+      "roomId": "MedBay",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.security.vent",
+      "position": {
+        "space": "unity_world",
+        "x": -12.528,
+        "y": -6.948
+      },
+      "roomId": "Security",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.shields.vent",
+      "position": {
+        "space": "unity_world",
+        "x": 9.516,
+        "y": -14.34
+      },
+      "roomId": "Shields",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.weapons.vent",
+      "position": {
+        "space": "unity_world",
+        "x": 8.82,
+        "y": 3.324
+      },
+      "roomId": "Weapons",
+      "kind": "vent"
+    },
+    {
+      "anchorId": "skeld.big-y.vent-cleaning",
+      "position": {
+        "x": 9.491878,
+        "y": -6.703081
+      },
+      "roomId": "Hallway_BigY",
+      "kind": "task"
+    },
+    {
+      "anchorId": "skeld.weapons.clear-asteroids",
+      "position": {
+        "x": 9.050491,
+        "y": 1.03855
+      },
+      "roomId": "Weapons",
+      "kind": "task"
+    }
+  ],
+  "routeSegments": [
+    {
+      "segmentId": "cafeteria.default_start_to_weapons.observed_01",
+      "fromAnchorId": "cafeteria.default_start",
+      "toAnchorId": "weapons.arrival_default_path",
+      "path": [
+        {
+          "x": -0.7814,
+          "y": 2.1701
+        },
+        {
+          "x": 0.0004,
+          "y": 2.1382
+        },
+        {
+          "x": 1.1523,
+          "y": 0.9916
+        },
+        {
+          "x": 2.3292,
+          "y": 0.8148
+        },
+        {
+          "x": 9.1572,
+          "y": 1.0648
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "weapons_to_cafeteria.default_start.reversed_01",
+      "fromAnchorId": "weapons.arrival_default_path",
+      "toAnchorId": "cafeteria.returned_default",
+      "path": [
+        {
+          "x": 9.3236,
+          "y": 1.0562
+        },
+        {
+          "x": 2.381,
+          "y": 0.879
+        },
+        {
+          "x": 1.306,
+          "y": 0.997
+        },
+        {
+          "x": 0.068,
+          "y": 2.235
+        },
+        {
+          "x": -0.6819,
+          "y": 2.2347
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.default_start_to_weapons.smooth_01",
+      "fromAnchorId": "cafeteria.returned_default",
+      "toAnchorId": "weapons.smooth_arrival",
+      "path": [
+        {
+          "x": -0.6819,
+          "y": 2.2347
+        },
+        {
+          "x": 1.3612,
+          "y": 0.7615
+        },
+        {
+          "x": 2.5654,
+          "y": 1.174
+        },
+        {
+          "x": 9.0505,
+          "y": 1.0386
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "weapons_to_cafeteria.native_runner_01",
+      "fromAnchorId": "weapons.smooth_arrival",
+      "toAnchorId": "cafeteria.native_runner_return",
+      "routePoints": [
+        {
+          "x": 9.0505,
+          "y": 1.0386
+        },
+        {
+          "x": 2.5654,
+          "y": 1.174
+        },
+        {
+          "x": 1.3612,
+          "y": 0.7615
+        },
+        {
+          "x": -0.6819,
+          "y": 2.2347
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "weapons_to_o2.guided_01",
+      "fromAnchorId": "weapons.smooth_arrival",
+      "toAnchorId": "o2.guided_arrival",
+      "path": [
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        },
+        {
+          "x": 9.1756,
+          "y": -3.5269
+        },
+        {
+          "x": 6.7902,
+          "y": -3.5269
+        }
+      ],
+      "status": "superseded"
+    },
+    {
+      "segmentId": "o2_to_weapons.native_reverse_01",
+      "fromAnchorId": "o2.guided_arrival",
+      "toAnchorId": "weapons.returned_from_o2",
+      "path": [
+        {
+          "x": 6.7902,
+          "y": -3.5269
+        },
+        {
+          "x": 9.1756,
+          "y": -3.5269
+        },
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        }
+      ],
+      "status": "superseded"
+    },
+    {
+      "segmentId": "junction.right.01_to_o2.guided_01",
+      "fromAnchorId": "junction.right.01",
+      "toAnchorId": "o2.guided_arrival",
+      "path": [
+        {
+          "x": 9.1756,
+          "y": -3.5269
+        },
+        {
+          "x": 6.7902,
+          "y": -3.5269
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "o2_to_junction.right.01.reverse_01",
+      "fromAnchorId": "o2.guided_arrival",
+      "toAnchorId": "junction.right.01",
+      "path": [
+        {
+          "x": 6.7902,
+          "y": -3.5269
+        },
+        {
+          "x": 9.1756,
+          "y": -3.5269
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.01_to_junction.right.02.guided_01",
+      "fromAnchorId": "junction.right.01",
+      "toAnchorId": "junction.right.02",
+      "path": [
+        {
+          "x": 9.2317,
+          "y": -3.5379
+        },
+        {
+          "x": 11.8151,
+          "y": -3.5379
+        },
+        {
+          "x": 11.8151,
+          "y": -5.2046
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.02_to_navigation.guided_01",
+      "fromAnchorId": "junction.right.02",
+      "toAnchorId": "navigation.guided_arrival",
+      "path": [
+        {
+          "x": 11.8151,
+          "y": -5.2046
+        },
+        {
+          "x": 11.9885,
+          "y": -5.0957
+        },
+        {
+          "x": 16.9885,
+          "y": -5.0957
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "navigation_to_junction.right.02.reverse_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "junction.right.02",
+      "path": [
+        {
+          "x": 16.9885,
+          "y": -5.0957
+        },
+        {
+          "x": 11.9885,
+          "y": -5.0957
+        },
+        {
+          "x": 11.8151,
+          "y": -5.2046
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.02_to_shields.guided_01",
+      "fromAnchorId": "junction.right.02",
+      "toAnchorId": "shields.guided_arrival",
+      "path": [
+        {
+          "x": 11.8151,
+          "y": -5.2046
+        },
+        {
+          "x": 11.6818,
+          "y": -6.8557
+        },
+        {
+          "x": 9.6425,
+          "y": -6.9651
+        },
+        {
+          "x": 9.6425,
+          "y": -12.8117
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "shields_to_junction.right.03.guided_01",
+      "fromAnchorId": "shields.guided_arrival",
+      "toAnchorId": "junction.right.03",
+      "path": [
+        {
+          "x": 9.6425,
+          "y": -12.8117
+        },
+        {
+          "x": 10.0208,
+          "y": -12.6372
+        },
+        {
+          "x": 9.4555,
+          "y": -12.7717
+        },
+        {
+          "x": 9.6109,
+          "y": -12.9676
+        },
+        {
+          "x": 9.1109,
+          "y": -12.9619
+        },
+        {
+          "x": 9.2955,
+          "y": -12.7933
+        },
+        {
+          "x": 7.8628,
+          "y": -12.7933
+        },
+        {
+          "x": 7.502,
+          "y": -12.5576
+        },
+        {
+          "x": 5.2265,
+          "y": -12.5576
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.03_to_communications.guided_01",
+      "fromAnchorId": "junction.right.03",
+      "toAnchorId": "communications.guided_arrival",
+      "path": [
+        {
+          "x": 5.2265,
+          "y": -12.5576
+        },
+        {
+          "x": 5.3719,
+          "y": -12.4761
+        },
+        {
+          "x": 5.2759,
+          "y": -12.6123
+        },
+        {
+          "x": 5.2759,
+          "y": -15.4
+        },
+        {
+          "x": 4.649,
+          "y": -16.0349
+        },
+        {
+          "x": 3.6866,
+          "y": -16.0349
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "communications_to_junction.right.03.reverse_01",
+      "fromAnchorId": "communications.guided_arrival",
+      "toAnchorId": "junction.right.03",
+      "path": [
+        {
+          "x": 3.6866,
+          "y": -16.0349
+        },
+        {
+          "x": 4.649,
+          "y": -16.0349
+        },
+        {
+          "x": 5.2759,
+          "y": -15.4
+        },
+        {
+          "x": 5.2759,
+          "y": -12.6123
+        },
+        {
+          "x": 5.3719,
+          "y": -12.4761
+        },
+        {
+          "x": 5.2265,
+          "y": -12.5576
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.03_to_storage.orbit.right.guided_01",
+      "fromAnchorId": "junction.right.03",
+      "toAnchorId": "storage.orbit.right",
+      "path": [
+        {
+          "x": 5.2265,
+          "y": -12.5576
+        },
+        {
+          "x": 0.2373,
+          "y": -12.6278
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.right_to_storage.orbit.bottom.guided_01",
+      "fromAnchorId": "storage.orbit.right",
+      "toAnchorId": "storage.orbit.bottom",
+      "path": [
+        {
+          "x": 0.2373,
+          "y": -12.6278
+        },
+        {
+          "x": 0.2373,
+          "y": -15.2111
+        },
+        {
+          "x": -1.4164,
+          "y": -15.2111
+        },
+        {
+          "x": -1.6895,
+          "y": -15.3879
+        },
+        {
+          "x": -1.6895,
+          "y": -15.7212
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.bottom_to_storage.orbit.left.guided_01",
+      "fromAnchorId": "storage.orbit.bottom",
+      "toAnchorId": "storage.orbit.left",
+      "path": [
+        {
+          "x": -1.6895,
+          "y": -15.7212
+        },
+        {
+          "x": -2.528,
+          "y": -15.7161
+        },
+        {
+          "x": -3.414,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.left_to_storage.orbit.top.guided_01",
+      "fromAnchorId": "storage.orbit.left",
+      "toAnchorId": "storage.orbit.top",
+      "path": [
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        },
+        {
+          "x": -4.4611,
+          "y": -12.2251
+        },
+        {
+          "x": -4.1954,
+          "y": -11.9593
+        },
+        {
+          "x": -3.8276,
+          "y": -11.8415
+        },
+        {
+          "x": -2.0588,
+          "y": -10.0737
+        },
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.top_to_storage.orbit.left.reverse_01",
+      "fromAnchorId": "storage.orbit.top",
+      "toAnchorId": "storage.orbit.left",
+      "path": [
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        },
+        {
+          "x": -2.0588,
+          "y": -10.0737
+        },
+        {
+          "x": -3.8276,
+          "y": -11.8415
+        },
+        {
+          "x": -4.1954,
+          "y": -11.9593
+        },
+        {
+          "x": -4.4611,
+          "y": -12.2251
+        },
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.loop_01",
+      "fromAnchorId": "storage.orbit.top",
+      "toAnchorId": "storage.orbit.top",
+      "path": [
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        },
+        {
+          "x": 0.7,
+          "y": -10.0737
+        },
+        {
+          "x": 0.7,
+          "y": -12.6278
+        },
+        {
+          "x": 0.2373,
+          "y": -12.6278
+        },
+        {
+          "x": 0.2373,
+          "y": -15.2111
+        },
+        {
+          "x": -1.4164,
+          "y": -15.2111
+        },
+        {
+          "x": -1.6895,
+          "y": -15.3879
+        },
+        {
+          "x": -1.6895,
+          "y": -15.7212
+        },
+        {
+          "x": -2.528,
+          "y": -15.7161
+        },
+        {
+          "x": -3.414,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        },
+        {
+          "x": -4.4611,
+          "y": -12.2251
+        },
+        {
+          "x": -4.1954,
+          "y": -11.9593
+        },
+        {
+          "x": -3.8276,
+          "y": -11.8415
+        },
+        {
+          "x": -2.0588,
+          "y": -10.0737
+        },
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.right_bottom_left_top_01",
+      "fromAnchorId": "storage.orbit.right",
+      "toAnchorId": "storage.orbit.top",
+      "path": [
+        {
+          "x": 0.2373,
+          "y": -12.6278
+        },
+        {
+          "x": 0.2373,
+          "y": -15.2111
+        },
+        {
+          "x": -1.4164,
+          "y": -15.2111
+        },
+        {
+          "x": -1.6895,
+          "y": -15.3879
+        },
+        {
+          "x": -1.6895,
+          "y": -15.7212
+        },
+        {
+          "x": -2.528,
+          "y": -15.7161
+        },
+        {
+          "x": -3.414,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        },
+        {
+          "x": -4.4611,
+          "y": -12.2251
+        },
+        {
+          "x": -4.1954,
+          "y": -11.9593
+        },
+        {
+          "x": -3.8276,
+          "y": -11.8415
+        },
+        {
+          "x": -2.0588,
+          "y": -10.0737
+        },
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        }
+      ],
+      "status": "partial_failed"
+    },
+    {
+      "segmentId": "storage.orbit.bottom_left_top_01",
+      "fromAnchorId": "storage.orbit.bottom",
+      "toAnchorId": "storage.orbit.top",
+      "path": [
+        {
+          "x": -1.6895,
+          "y": -15.7212
+        },
+        {
+          "x": -2.528,
+          "y": -15.7161
+        },
+        {
+          "x": -3.414,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -14.8373
+        },
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        },
+        {
+          "x": -4.4611,
+          "y": -12.2251
+        },
+        {
+          "x": -4.1954,
+          "y": -11.9593
+        },
+        {
+          "x": -3.8276,
+          "y": -11.8415
+        },
+        {
+          "x": -2.0588,
+          "y": -10.0737
+        },
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.top_to_right.outer_02",
+      "fromAnchorId": "storage.orbit.top",
+      "toAnchorId": "storage.orbit.right",
+      "path": [
+        {
+          "x": -1.8098,
+          "y": -10.0737
+        },
+        {
+          "x": 0.7,
+          "y": -10.0737
+        },
+        {
+          "x": 0.7,
+          "y": -12.6278
+        },
+        {
+          "x": 0.2373,
+          "y": -12.6278
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.left_to_junction.left03.guided_01",
+      "fromAnchorId": "storage.orbit.left",
+      "toAnchorId": "junction.left.03",
+      "path": [
+        {
+          "x": -4.4901,
+          "y": -12.8373
+        },
+        {
+          "x": -4.3925,
+          "y": -12.7406
+        },
+        {
+          "x": -4.3082,
+          "y": -12.976
+        },
+        {
+          "x": -4.676,
+          "y": -12.976
+        },
+        {
+          "x": -4.8671,
+          "y": -13.1182
+        },
+        {
+          "x": -4.9017,
+          "y": -14.6047
+        },
+        {
+          "x": -5.1329,
+          "y": -14.884
+        },
+        {
+          "x": -7.9652,
+          "y": -14.8885
+        },
+        {
+          "x": -8.3677,
+          "y": -14.6528
+        },
+        {
+          "x": -8.9928,
+          "y": -14.6528
+        },
+        {
+          "x": -9.2947,
+          "y": -14.8295
+        },
+        {
+          "x": -9.7998,
+          "y": -14.8295
+        },
+        {
+          "x": -9.7998,
+          "y": -15.0795
+        },
+        {
+          "x": -9.5498,
+          "y": -15.0795
+        },
+        {
+          "x": -9.5498,
+          "y": -14.8295
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.anchor.bottom_to_admin.anchor.top.observed_01",
+      "fromAnchorId": "admin.anchor.bottom",
+      "toAnchorId": "admin.anchor.top",
+      "path": [
+        {
+          "x": 4.641275,
+          "y": -10.08626
+        },
+        {
+          "x": 4.6019316,
+          "y": -9.998104
+        },
+        {
+          "x": 4.670024,
+          "y": -9.845982
+        },
+        {
+          "x": 4.5705223,
+          "y": -9.979688
+        },
+        {
+          "x": 6.181966,
+          "y": -9.979687
+        },
+        {
+          "x": 6.349091,
+          "y": -9.923299
+        },
+        {
+          "x": 6.388133,
+          "y": -7.897291
+        },
+        {
+          "x": 6.3679056,
+          "y": -7.780704
+        },
+        {
+          "x": 6.2589345,
+          "y": -7.742006
+        },
+        {
+          "x": 4.412548,
+          "y": -7.7420063
+        },
+        {
+          "x": 4.4958816,
+          "y": -7.7420063
+        },
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.center_to_admin.anchor.top.observed_01",
+      "fromAnchorId": "junction.center",
+      "toAnchorId": "admin.anchor.top",
+      "path": [
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        },
+        {
+          "x": -0.72079927,
+          "y": -7.5115623
+        },
+        {
+          "x": 4.529195,
+          "y": -7.5115614
+        },
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.anchor.top_to_junction.center.observed_01",
+      "fromAnchorId": "admin.anchor.top",
+      "toAnchorId": "junction.center",
+      "path": [
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        },
+        {
+          "x": 4.529195,
+          "y": -7.5115614
+        },
+        {
+          "x": 4.3732424,
+          "y": -7.5703545
+        },
+        {
+          "x": 2.0806131,
+          "y": -7.570354
+        },
+        {
+          "x": 1.7615716,
+          "y": -7.3346515
+        },
+        {
+          "x": 0.8867201,
+          "y": -7.335476
+        },
+        {
+          "x": 0.7096004,
+          "y": -7.5114284
+        },
+        {
+          "x": -0.70589745,
+          "y": -7.511428
+        },
+        {
+          "x": -0.9836575,
+          "y": -7.695711
+        },
+        {
+          "x": -0.5669912,
+          "y": -7.6957107
+        },
+        {
+          "x": -0.5669912,
+          "y": -7.362378
+        },
+        {
+          "x": -0.7336577,
+          "y": -7.3623786
+        },
+        {
+          "x": -0.7336577,
+          "y": -7.612378
+        },
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.center_to_admin.anchor.bottom.observed_01",
+      "fromAnchorId": "junction.center",
+      "toAnchorId": "admin.anchor.bottom",
+      "path": [
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        },
+        {
+          "x": -0.7336578,
+          "y": -7.529045
+        },
+        {
+          "x": 2.6830058,
+          "y": -7.5290446
+        },
+        {
+          "x": 2.6830058,
+          "y": -9.945702
+        },
+        {
+          "x": 4.5163364,
+          "y": -9.945702
+        },
+        {
+          "x": 4.641275,
+          "y": -10.08626
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.03_to_storage.orbit.bottom.observed_01",
+      "fromAnchorId": "junction.left.03",
+      "toAnchorId": "storage.orbit.bottom",
+      "path": [
+        {
+          "x": -9.549818,
+          "y": -14.829548
+        },
+        {
+          "x": -3.957706,
+          "y": -14.79472
+        },
+        {
+          "x": -3.8489099,
+          "y": -14.811117
+        },
+        {
+          "x": -3.8489099,
+          "y": -16.044716
+        },
+        {
+          "x": -1.7655784,
+          "y": -16.044716
+        },
+        {
+          "x": -1.689522,
+          "y": -15.721194
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.top_to_junction.center.observed_01",
+      "fromAnchorId": "storage.orbit.top",
+      "toAnchorId": "junction.center",
+      "path": [
+        {
+          "x": -1.809823,
+          "y": -10.073738
+        },
+        {
+          "x": -1.7807993,
+          "y": -10.33272
+        },
+        {
+          "x": -0.7808001,
+          "y": -10.33272
+        },
+        {
+          "x": -0.78080016,
+          "y": -7.582731
+        },
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.03_to_electrical.anchor.bottom.observed_01",
+      "fromAnchorId": "junction.left.03",
+      "toAnchorId": "electrical.anchor.bottom",
+      "path": [
+        {
+          "x": -9.549818,
+          "y": -14.829548
+        },
+        {
+          "x": -9.541121,
+          "y": -11.762928
+        },
+        {
+          "x": -8.457791,
+          "y": -11.762928
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "electrical.anchor.bottom_to_electrical.anchor.top.observed_01",
+      "fromAnchorId": "electrical.anchor.bottom",
+      "toAnchorId": "electrical.anchor.top",
+      "path": [
+        {
+          "x": -8.457791,
+          "y": -11.762928
+        },
+        {
+          "x": -7.207796,
+          "y": -11.762928
+        },
+        {
+          "x": -7.2077956,
+          "y": -8.9296055
+        },
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.03_to_engine.lower.observed_01",
+      "fromAnchorId": "junction.left.03",
+      "toAnchorId": "engine.lower",
+      "path": [
+        {
+          "x": -9.549818,
+          "y": -14.829548
+        },
+        {
+          "x": -9.502352,
+          "y": -14.870779
+        },
+        {
+          "x": -12.085676,
+          "y": -14.870779
+        },
+        {
+          "x": -12.085675,
+          "y": -11.9541235
+        },
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.lower_to_junction.left.02.observed_01",
+      "fromAnchorId": "engine.lower",
+      "toAnchorId": "junction.left.02",
+      "path": [
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        },
+        {
+          "x": -15.25233,
+          "y": -10.037464
+        },
+        {
+          "x": -17.002337,
+          "y": -10.037464
+        },
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.02_to_reactor.entry.observed_01",
+      "fromAnchorId": "junction.left.02",
+      "toAnchorId": "reactor.entry",
+      "path": [
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        },
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "reactor.entry_to_junction.left.02.observed_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "junction.left.02",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -16.835669,
+          "y": -5.620815
+        },
+        {
+          "x": -17.169004,
+          "y": -5.620815
+        },
+        {
+          "x": -16.919003,
+          "y": -5.6208143
+        },
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.02_to_security.entry.observed_01",
+      "fromAnchorId": "junction.left.02",
+      "toAnchorId": "security.entry",
+      "path": [
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        },
+        {
+          "x": -13.669004,
+          "y": -5.620815
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "security.entry_to_junction.left.02.observed_01",
+      "fromAnchorId": "security.entry",
+      "toAnchorId": "junction.left.02",
+      "path": [
+        {
+          "x": -13.669004,
+          "y": -5.620815
+        },
+        {
+          "x": -13.908735,
+          "y": -5.6917353
+        },
+        {
+          "x": -17.075401,
+          "y": -5.6917353
+        },
+        {
+          "x": -16.908731,
+          "y": -5.6917353
+        },
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.02_to_engine.upper.observed_01",
+      "fromAnchorId": "junction.left.02",
+      "toAnchorId": "engine.upper",
+      "path": [
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        },
+        {
+          "x": -16.908731,
+          "y": -5.6917353
+        },
+        {
+          "x": -16.908733,
+          "y": -1.1084104
+        },
+        {
+          "x": -15.325396,
+          "y": -1.1084104
+        },
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.upper_to_junction.left.01.observed_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "junction.left.01",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -9.158753,
+          "y": 0.808254
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.01_to_medical.entry.observed_01",
+      "fromAnchorId": "junction.left.01",
+      "toAnchorId": "medical.entry",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": 0.808254
+        },
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.01_to_cafeteria.left.observed_01",
+      "fromAnchorId": "junction.left.01",
+      "toAnchorId": "cafeteria.left",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": 0.808254
+        },
+        {
+          "x": -9.100848,
+          "y": 0.7636275
+        },
+        {
+          "x": -3.350868,
+          "y": 0.763628
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.left_to_cafeteria.default_start.observed_01",
+      "fromAnchorId": "cafeteria.left",
+      "toAnchorId": "cafeteria.default_start",
+      "path": [
+        {
+          "x": -3.350868,
+          "y": 0.763628
+        },
+        {
+          "x": -3.5760682,
+          "y": 0.9648442
+        },
+        {
+          "x": -3.2020097,
+          "y": 1.3183972
+        },
+        {
+          "x": -3.0770109,
+          "y": 1.3183972
+        },
+        {
+          "x": -2.8758228,
+          "y": 1.2005461
+        },
+        {
+          "x": -2.7568276,
+          "y": 1.2150483
+        },
+        {
+          "x": -2.2204802,
+          "y": 1.7308757
+        },
+        {
+          "x": -1.9617977,
+          "y": 1.6530962
+        },
+        {
+          "x": -1.5550599,
+          "y": 2.065586
+        },
+        {
+          "x": -0.781414,
+          "y": 2.170088
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.default_start_to_cafeteria.right.observed_01",
+      "fromAnchorId": "cafeteria.default_start",
+      "toAnchorId": "cafeteria.right",
+      "path": [
+        {
+          "x": -0.781414,
+          "y": 2.170088
+        },
+        {
+          "x": -0.78431946,
+          "y": 2.3211477
+        },
+        {
+          "x": 0.5953159,
+          "y": 2.3018012
+        },
+        {
+          "x": 1.838529,
+          "y": 1.0698521
+        },
+        {
+          "x": 1.9334481,
+          "y": 0.94250333
+        },
+        {
+          "x": 1.9366639,
+          "y": 0.80505073
+        },
+        {
+          "x": 2.2153673,
+          "y": 0.57256436
+        },
+        {
+          "x": 3.5024824,
+          "y": 0.57256436
+        },
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.right_to_weapons.guided_start.observed_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "weapons.guided_start",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 8.418387,
+          "y": 0.8225641
+        },
+        {
+          "x": 8.531386,
+          "y": 0.85148513
+        },
+        {
+          "x": 8.7971,
+          "y": 1.1171917
+        },
+        {
+          "x": 8.998279,
+          "y": 0.99934065
+        },
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "weapons_to_junction.right.01.guided_01",
+      "fromAnchorId": "weapons.guided_start",
+      "toAnchorId": "junction.right.01",
+      "path": [
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        },
+        {
+          "x": 9.414944,
+          "y": 0.9993408
+        },
+        {
+          "x": 9.414944,
+          "y": -3.6673214
+        },
+        {
+          "x": 9.1756,
+          "y": -3.5269
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.bottom.observed_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "cafeteria.bottom",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 1.4435589,
+          "y": 0.7981565
+        },
+        {
+          "x": 1.4276171,
+          "y": -0.45184225
+        },
+        {
+          "x": 0.05232411,
+          "y": -0.45184225
+        },
+        {
+          "x": -0.043510363,
+          "y": -0.52224624
+        },
+        {
+          "x": -0.75084186,
+          "y": -1.2295778
+        },
+        {
+          "x": -0.7980635,
+          "y": -1.3772339
+        },
+        {
+          "x": -0.798064,
+          "y": -3.193464
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.bottom_to_cafeteria.left.observed_01",
+      "fromAnchorId": "cafeteria.bottom",
+      "toAnchorId": "cafeteria.left",
+      "path": [
+        {
+          "x": -0.798064,
+          "y": -3.193464
+        },
+        {
+          "x": -0.7980635,
+          "y": -1.1101329
+        },
+        {
+          "x": -2.0749402,
+          "y": -1.0832552
+        },
+        {
+          "x": -3.960639,
+          "y": 0.8024399
+        },
+        {
+          "x": -4.4926066,
+          "y": 0.834409
+        },
+        {
+          "x": -3.549997,
+          "y": 0.850002
+        },
+        {
+          "x": -3.449997,
+          "y": 0.750002
+        },
+        {
+          "x": -3.350868,
+          "y": 0.763628
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.bottom_to_junction.center.observed_01",
+      "fromAnchorId": "cafeteria.bottom",
+      "toAnchorId": "junction.center",
+      "path": [
+        {
+          "x": -0.798064,
+          "y": -3.193464
+        },
+        {
+          "x": -0.7450458,
+          "y": -3.0426934
+        },
+        {
+          "x": -0.7450458,
+          "y": -7.169611
+        },
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.anchor.top_to_admin.upload-data.auto_grid_01",
+      "fromAnchorId": "admin.anchor.top",
+      "toAnchorId": "skeld.admin.upload-data",
+      "path": [
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        },
+        {
+          "x": 4.250003,
+          "y": -7.649998
+        },
+        {
+          "x": 3.950003,
+          "y": -7.349998
+        },
+        {
+          "x": 2.950003,
+          "y": -7.349998
+        },
+        {
+          "x": 2.823,
+          "y": -7.2
+        },
+        {
+          "x": 2.823,
+          "y": -6.2652
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "admin.anchor.top_to_admin.swipe-card.auto_grid_01",
+      "fromAnchorId": "admin.anchor.top",
+      "toAnchorId": "skeld.admin.swipe-card",
+      "path": [
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        },
+        {
+          "x": 6.050003,
+          "y": -7.649998
+        },
+        {
+          "x": 6.150003,
+          "y": -7.749998
+        },
+        {
+          "x": 6.25,
+          "y": -7.7
+        },
+        {
+          "x": 6.250003,
+          "y": -8.049998
+        },
+        {
+          "x": 5.950003,
+          "y": -8.349998
+        },
+        {
+          "x": 5.9502,
+          "y": -8.6328
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "medical.entry_to_medical.med-bay.auto_grid_01",
+      "fromAnchorId": "medical.entry",
+      "toAnchorId": "skeld.medical.med-bay",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        },
+        {
+          "x": -8.549997,
+          "y": -4.649998
+        },
+        {
+          "x": -8.349997,
+          "y": -4.449998
+        },
+        {
+          "x": -7.649997,
+          "y": -4.449998
+        },
+        {
+          "x": -7.549997,
+          "y": -4.349998
+        },
+        {
+          "x": -5.949997,
+          "y": -4.349998
+        },
+        {
+          "x": -5.829,
+          "y": -4.26
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.unlock-manifolds.auto_grid_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.unlock-manifolds",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.949998,
+          "y": -5.249998
+        },
+        {
+          "x": -21.149998,
+          "y": -5.049998
+        },
+        {
+          "x": -21.249998,
+          "y": -4.549998
+        },
+        {
+          "x": -21.749998,
+          "y": -3.649998
+        },
+        {
+          "x": -21.749998,
+          "y": -3.449998
+        },
+        {
+          "x": -21.949998,
+          "y": -3.149998
+        },
+        {
+          "x": -21.949998,
+          "y": -2.949998
+        },
+        {
+          "x": -22.149998,
+          "y": -2.749998
+        },
+        {
+          "x": -22.221,
+          "y": -2.4996
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "cafeteria.default_start_to_cafeteria.data.auto_grid_01",
+      "fromAnchorId": "cafeteria.default_start",
+      "toAnchorId": "skeld.cafeteria.data",
+      "path": [
+        {
+          "x": -0.781414,
+          "y": 2.170088
+        },
+        {
+          "x": -0.149997,
+          "y": 2.150002
+        },
+        {
+          "x": 0.050003,
+          "y": 1.950002
+        },
+        {
+          "x": 0.750003,
+          "y": 1.950002
+        },
+        {
+          "x": 0.850003,
+          "y": 1.850002
+        },
+        {
+          "x": 2.250003,
+          "y": 1.850002
+        },
+        {
+          "x": 3.150003,
+          "y": 0.950002
+        },
+        {
+          "x": 3.5,
+          "y": 0.82
+        },
+        {
+          "x": 4.0,
+          "y": 0.9
+        },
+        {
+          "x": 3.950003,
+          "y": 0.950002
+        },
+        {
+          "x": 3.950003,
+          "y": 4.750002
+        },
+        {
+          "x": 4.0,
+          "y": 4.9
+        },
+        {
+          "x": 3.8058,
+          "y": 4.896
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.right.tasks.guided_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "cafeteria.right.tasks",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 2.950003,
+          "y": 1.150002
+        },
+        {
+          "x": 2.750003,
+          "y": 1.150002
+        },
+        {
+          "x": 2.692324,
+          "y": 1.259672
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "cafeteria.right.tasks_to_cafeteria.garbage.observed_01",
+      "fromAnchorId": "cafeteria.right.tasks",
+      "toAnchorId": "skeld.cafeteria.garbage",
+      "path": [
+        {
+          "x": 2.692324,
+          "y": 1.259672
+        },
+        {
+          "x": 3.220738,
+          "y": 1.2880862
+        },
+        {
+          "x": 4.0165553,
+          "y": 2.0839026
+        },
+        {
+          "x": 4.017282,
+          "y": 3.584628
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.garbage.direct_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "skeld.cafeteria.garbage",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 3.550003,
+          "y": 1.450002
+        },
+        {
+          "x": 3.750003,
+          "y": 1.650002
+        },
+        {
+          "x": 3.750003,
+          "y": 2.350002
+        },
+        {
+          "x": 3.850003,
+          "y": 2.450002
+        },
+        {
+          "x": 3.850003,
+          "y": 3.150002
+        },
+        {
+          "x": 3.950003,
+          "y": 3.250002
+        },
+        {
+          "x": 4.017282,
+          "y": 3.584628
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.right.data_start.guided_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "cafeteria.right.data_start",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 3.250003,
+          "y": 0.850002
+        },
+        {
+          "x": 3.17353,
+          "y": 0.958043
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "cafeteria.right.data_start_to_cafeteria.data.observed_01",
+      "fromAnchorId": "cafeteria.right.data_start",
+      "toAnchorId": "skeld.cafeteria.data",
+      "path": [
+        {
+          "x": 3.17353,
+          "y": 0.958043
+        },
+        {
+          "x": 3.1735294,
+          "y": 2.0409963
+        },
+        {
+          "x": 3.527083,
+          "y": 2.395578
+        },
+        {
+          "x": 3.527083,
+          "y": 4.0220222
+        },
+        {
+          "x": 3.513903,
+          "y": 4.125264
+        },
+        {
+          "x": 3.388745,
+          "y": 4.250078
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.data.direct_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "skeld.cafeteria.data",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 3.550003,
+          "y": 0.950002
+        },
+        {
+          "x": 3.550003,
+          "y": 3.850002
+        },
+        {
+          "x": 3.350003,
+          "y": 4.150002
+        },
+        {
+          "x": 3.388745,
+          "y": 4.250078
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "weapons.guided_start_to_weapons.upload-data.observed_01",
+      "fromAnchorId": "weapons.guided_start",
+      "toAnchorId": "skeld.weapons.upload-data",
+      "path": [
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        },
+        {
+          "x": 9.044947,
+          "y": 1.0545545
+        },
+        {
+          "x": 8.052329,
+          "y": 1.0422674
+        },
+        {
+          "x": 8.055243,
+          "y": 1.6418672
+        },
+        {
+          "x": 8.120007,
+          "y": 1.8865416
+        },
+        {
+          "x": 8.665359,
+          "y": 2.489177
+        },
+        {
+          "x": 8.681377,
+          "y": 3.371168
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "o2.guided_arrival_to_life-support.garbage.observed_01",
+      "fromAnchorId": "o2.guided_arrival",
+      "toAnchorId": "skeld.life-support.garbage",
+      "path": [
+        {
+          "x": 6.790166,
+          "y": -3.526907
+        },
+        {
+          "x": 6.6628575,
+          "y": -3.8812175
+        },
+        {
+          "x": 5.082626,
+          "y": -3.8812172
+        },
+        {
+          "x": 4.952065,
+          "y": -3.974675
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "o2.guided_arrival_to_life-support.clean-filter.observed_01",
+      "fromAnchorId": "o2.guided_arrival",
+      "toAnchorId": "skeld.life-support.clean-filter",
+      "path": [
+        {
+          "x": 6.790166,
+          "y": -3.526907
+        },
+        {
+          "x": 7.2866683,
+          "y": -3.7249982
+        },
+        {
+          "x": 6.2675934,
+          "y": -3.7059195
+        },
+        {
+          "x": 6.050969,
+          "y": -3.489296
+        },
+        {
+          "x": 6.050969,
+          "y": -3.32263
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "o2.guided_arrival_to_life-support.divert-power.generated_01",
+      "fromAnchorId": "o2.guided_arrival",
+      "toAnchorId": "skeld.life-support.divert-power",
+      "path": [
+        {
+          "x": 6.790166,
+          "y": -3.526907
+        },
+        {
+          "x": 7.050003,
+          "y": -3.549998
+        },
+        {
+          "x": 7.350003,
+          "y": -3.249998
+        },
+        {
+          "x": 8.150003,
+          "y": -3.249998
+        },
+        {
+          "x": 8.273933,
+          "y": -3.151497
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_cockpit.stabilize-steering.observed_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.stabilize-steering",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.88515,
+          "y": -4.9994664
+        },
+        {
+          "x": 17.623793,
+          "y": -4.99665
+        },
+        {
+          "x": 17.602446,
+          "y": -5.083566
+        },
+        {
+          "x": 17.676504,
+          "y": -5.2195597
+        },
+        {
+          "x": 17.882753,
+          "y": -5.425809
+        },
+        {
+          "x": 18.240135,
+          "y": -5.4421535
+        },
+        {
+          "x": 18.304676,
+          "y": -5.5203004
+        },
+        {
+          "x": 18.251003,
+          "y": -5.414916
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_cockpit.chart-course.observed_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.chart-course",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.49924,
+          "y": -4.910343
+        },
+        {
+          "x": 16.49924,
+          "y": -4.6807523
+        },
+        {
+          "x": 16.926971,
+          "y": -4.232613
+        },
+        {
+          "x": 16.985956,
+          "y": -3.4236288
+        },
+        {
+          "x": 17.074413,
+          "y": -3.3351715
+        },
+        {
+          "x": 17.193693,
+          "y": -3.3210886
+        },
+        {
+          "x": 17.2,
+          "y": -3.5
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_cockpit.upload-data.generated_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.upload-data",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.950003,
+          "y": -3.549998
+        },
+        {
+          "x": 16.750003,
+          "y": -3.249998
+        },
+        {
+          "x": 16.770159,
+          "y": -3.114719
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_cockpit.divert-power.observed_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.divert-power",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.443516,
+          "y": -4.898673
+        },
+        {
+          "x": 16.443518,
+          "y": -4.8258896
+        },
+        {
+          "x": 15.920454,
+          "y": -4.2922764
+        },
+        {
+          "x": 15.913121,
+          "y": -3.108975
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "shields.guided_arrival_to_shields.divert-power.observed_01",
+      "fromAnchorId": "shields.guided_arrival",
+      "toAnchorId": "skeld.shields.divert-power",
+      "path": [
+        {
+          "x": 9.642466,
+          "y": -12.811722
+        },
+        {
+          "x": 9.160138,
+          "y": -12.547128
+        },
+        {
+          "x": 9.170783,
+          "y": -11.86982
+        },
+        {
+          "x": 9.435951,
+          "y": -11.604652
+        },
+        {
+          "x": 9.9,
+          "y": -11.2
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "weapons.guided_start_to_weapons.divert-power.observed_01",
+      "fromAnchorId": "weapons.guided_start",
+      "toAnchorId": "skeld.weapons.divert-power",
+      "path": [
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        },
+        {
+          "x": 9.545125,
+          "y": 1.1817076
+        },
+        {
+          "x": 10.287077,
+          "y": 1.9067771
+        },
+        {
+          "x": 10.901152,
+          "y": 1.8991134
+        },
+        {
+          "x": 10.75,
+          "y": 1.9
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "communications.guided_arrival_to_comms.divert-power.observed_01",
+      "fromAnchorId": "communications.guided_arrival",
+      "toAnchorId": "skeld.comms.divert-power",
+      "path": [
+        {
+          "x": 3.68664,
+          "y": -16.034916
+        },
+        {
+          "x": 4.860756,
+          "y": -15.885487
+        },
+        {
+          "x": 5.981045,
+          "y": -14.765198
+        },
+        {
+          "x": 6.200145,
+          "y": -14.73084
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "communications.guided_arrival_to_comms.upload-data.observed_01",
+      "fromAnchorId": "communications.guided_arrival",
+      "toAnchorId": "skeld.comms.upload-data",
+      "path": [
+        {
+          "x": 3.68664,
+          "y": -16.034916
+        },
+        {
+          "x": 4.1067085,
+          "y": -15.740946
+        },
+        {
+          "x": 4.2588015,
+          "y": -15.740946
+        },
+        {
+          "x": 4.6269283,
+          "y": -15.35967
+        },
+        {
+          "x": 4.6072354,
+          "y": -14.867702
+        },
+        {
+          "x": 4.464804,
+          "y": -14.726149
+        },
+        {
+          "x": 4.404158,
+          "y": -14.779786
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.bottom_to_storage.gas-can.observed_01",
+      "fromAnchorId": "storage.orbit.bottom",
+      "toAnchorId": "skeld.storage.gas-can",
+      "path": [
+        {
+          "x": -1.689522,
+          "y": -15.721194
+        },
+        {
+          "x": -1.8791919,
+          "y": -15.937384
+        },
+        {
+          "x": -2.0742009,
+          "y": -15.90904
+        },
+        {
+          "x": -3.0475938,
+          "y": -14.920696
+        },
+        {
+          "x": -3.048656,
+          "y": -14.473248
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.bottom_to_storage.garbage.runtime.observed_01",
+      "fromAnchorId": "storage.orbit.bottom",
+      "toAnchorId": "skeld.storage.garbage.runtime",
+      "path": [
+        {
+          "x": -1.689522,
+          "y": -15.721194
+        },
+        {
+          "x": -2.047847,
+          "y": -15.731753
+        },
+        {
+          "x": -0.6872899,
+          "y": -17.087042
+        },
+        {
+          "x": 0.754389,
+          "y": -17.08708
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.center_to_admin.upload-data.observed_01",
+      "fromAnchorId": "junction.center",
+      "toAnchorId": "skeld.admin.upload-data",
+      "path": [
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        },
+        {
+          "x": -0.6190438,
+          "y": -7.4123535
+        },
+        {
+          "x": 2.29762,
+          "y": -7.4123535
+        },
+        {
+          "x": 2.297502,
+          "y": -6.865455
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.anchor.top_to_admin.swipe-card.observed_02",
+      "fromAnchorId": "admin.anchor.top",
+      "toAnchorId": "skeld.admin.swipe-card",
+      "path": [
+        {
+          "x": 4.554445,
+          "y": -7.61816
+        },
+        {
+          "x": 4.650155,
+          "y": -7.7394505
+        },
+        {
+          "x": 5.8579082,
+          "y": -7.73945
+        },
+        {
+          "x": 5.958668,
+          "y": -7.797968
+        },
+        {
+          "x": 5.920769,
+          "y": -9.131477
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "electrical.anchor.top_to_electrical.upload-data.observed_01",
+      "fromAnchorId": "electrical.anchor.top",
+      "toAnchorId": "skeld.electrical.upload-data",
+      "path": [
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        },
+        {
+          "x": -9.632535,
+          "y": -8.907568
+        },
+        {
+          "x": -9.70643,
+          "y": -8.821944
+        },
+        {
+          "x": -9.706697,
+          "y": -8.050133
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "electrical.anchor.top_to_electrical.divert-power.observed_01",
+      "fromAnchorId": "electrical.anchor.top",
+      "toAnchorId": "skeld.electrical.divert-power",
+      "path": [
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        },
+        {
+          "x": -8.072399,
+          "y": -8.698833
+        },
+        {
+          "x": -8.466195,
+          "y": -8.698833
+        },
+        {
+          "x": -8.826461,
+          "y": -8.361437
+        },
+        {
+          "x": -8.842886,
+          "y": -8.073382
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "electrical.anchor.top_to_electrical.fix-wiring.observed_01",
+      "fromAnchorId": "electrical.anchor.top",
+      "toAnchorId": "skeld.electrical.fix-wiring",
+      "path": [
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        },
+        {
+          "x": -8.061631,
+          "y": -9.054278
+        },
+        {
+          "x": -8.061631,
+          "y": -8.372417
+        },
+        {
+          "x": -8.021366,
+          "y": -8.264015
+        },
+        {
+          "x": -7.802544,
+          "y": -8.101381
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "electrical.anchor.top_to_electrical.calibrate.observed_01",
+      "fromAnchorId": "electrical.anchor.top",
+      "toAnchorId": "skeld.electrical.calibrate",
+      "path": [
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        },
+        {
+          "x": -8.198124,
+          "y": -8.82329
+        },
+        {
+          "x": -6.700893,
+          "y": -8.82329
+        },
+        {
+          "x": -6.121789,
+          "y": -8.24695
+        },
+        {
+          "x": -5.882361,
+          "y": -8.235921
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "storage.orbit.top_to_storage.fix-wiring.observed_01",
+      "fromAnchorId": "storage.orbit.top",
+      "toAnchorId": "skeld.storage.fix-wiring",
+      "path": [
+        {
+          "x": -1.809823,
+          "y": -10.073738
+        },
+        {
+          "x": -1.5868068,
+          "y": -10.486808
+        },
+        {
+          "x": -1.8925159,
+          "y": -10.181097
+        },
+        {
+          "x": -1.9403598,
+          "y": -10.034027
+        },
+        {
+          "x": -1.940469,
+          "y": -9.398191
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.center_to_admin.fix-wiring.observed_01",
+      "fromAnchorId": "junction.center",
+      "toAnchorId": "skeld.admin.fix-wiring",
+      "path": [
+        {
+          "x": -0.672254,
+          "y": -7.351861
+        },
+        {
+          "x": 1.2098051,
+          "y": -7.3385906
+        },
+        {
+          "x": 1.3162527,
+          "y": -7.293789
+        },
+        {
+          "x": 1.330376,
+          "y": -6.973653
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.left_to_cafeteria.fix-wiring.observed_01",
+      "fromAnchorId": "cafeteria.left",
+      "toAnchorId": "skeld.cafeteria.fix-wiring",
+      "path": [
+        {
+          "x": -3.350868,
+          "y": 0.763628
+        },
+        {
+          "x": -3.5094242,
+          "y": 0.8385228
+        },
+        {
+          "x": -4.8412285,
+          "y": 0.8385227
+        },
+        {
+          "x": -4.9545236,
+          "y": 0.8669591
+        },
+        {
+          "x": -5.338043,
+          "y": 1.2504777
+        },
+        {
+          "x": -5.338567,
+          "y": 2.8166652
+        },
+        {
+          "x": -5.1028643,
+          "y": 3.1356964
+        },
+        {
+          "x": -5.102864,
+          "y": 4.736699
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "medical.entry_to_medical.med-bay.observed_02",
+      "fromAnchorId": "medical.entry",
+      "toAnchorId": "skeld.medical.med-bay",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        },
+        {
+          "x": -9.009327,
+          "y": -3.664495
+        },
+        {
+          "x": -7.39032,
+          "y": -5.2835026
+        },
+        {
+          "x": -7.35941,
+          "y": -5.397746
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "medical.entry_to_medical.med-bay.inspect-sample.observed_01",
+      "fromAnchorId": "medical.entry",
+      "toAnchorId": "skeld.medical.med-bay",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        },
+        {
+          "x": -9.062328,
+          "y": -3.9448261
+        },
+        {
+          "x": -8.225795,
+          "y": -3.948029
+        },
+        {
+          "x": -7.694093,
+          "y": -4.475157
+        },
+        {
+          "x": -6.842609,
+          "y": -4.477408
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.upper_to_left-engine.divert-power.observed_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "skeld.left-engine.divert-power",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -15.27802,
+          "y": 0.70313656
+        },
+        {
+          "x": -15.278021,
+          "y": 2.0130172
+        },
+        {
+          "x": -15.349829,
+          "y": 2.1082757
+        },
+        {
+          "x": -15.455758,
+          "y": 2.15432
+        },
+        {
+          "x": -16.8312,
+          "y": 2.15432
+        },
+        {
+          "x": -17.367289,
+          "y": 2.621597
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.upper_to_left-engine.align-engine.observed_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "skeld.left-engine.align-engine",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -15.340914,
+          "y": -1.0976324
+        },
+        {
+          "x": -15.487385,
+          "y": -1.1463325
+        },
+        {
+          "x": -18.479708,
+          "y": -1.1489042
+        },
+        {
+          "x": -18.714577,
+          "y": -1.2338444
+        },
+        {
+          "x": -19.30045,
+          "y": -1.222925
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.left.02_to_security.fix-wiring.runtime.observed_01",
+      "fromAnchorId": "junction.left.02",
+      "toAnchorId": "skeld.security.fix-wiring.runtime",
+      "path": [
+        {
+          "x": -17.002337,
+          "y": -5.620815
+        },
+        {
+          "x": -16.870632,
+          "y": -5.739876
+        },
+        {
+          "x": -15.287294,
+          "y": -5.7398753
+        },
+        {
+          "x": -15.287295,
+          "y": -5.1569767
+        },
+        {
+          "x": -15.499435,
+          "y": -5.158211
+        },
+        {
+          "x": -15.270208,
+          "y": -5.159951
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "security.entry_to_security.divert-power.observed_01",
+      "fromAnchorId": "security.entry",
+      "toAnchorId": "skeld.security.divert-power",
+      "path": [
+        {
+          "x": -13.669004,
+          "y": -5.620815
+        },
+        {
+          "x": -13.734133,
+          "y": -5.6653357
+        },
+        {
+          "x": -13.734132,
+          "y": -5.321651
+        },
+        {
+          "x": -13.667889,
+          "y": -5.1824274
+        },
+        {
+          "x": -12.125886,
+          "y": -3.64059
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.start-reactor.observed_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.start-reactor",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.120209,
+          "y": -5.7256827
+        },
+        {
+          "x": -21.323185,
+          "y": -5.725533
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.unlock-manifolds.observed_02",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.unlock-manifolds",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.173054,
+          "y": -5.74537
+        },
+        {
+          "x": -20.446045,
+          "y": -5.7223797
+        },
+        {
+          "x": -21.719418,
+          "y": -4.415331
+        },
+        {
+          "x": -21.719421,
+          "y": -3.4138134
+        },
+        {
+          "x": -22.324556,
+          "y": -2.7619872
+        },
+        {
+          "x": -22.267708,
+          "y": -2.709762
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.divert-power.runtime.observed_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.divert-power.runtime",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.116093,
+          "y": -5.6239038
+        },
+        {
+          "x": -20.11623,
+          "y": -3.746189
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.upper_to_left-engine.fuel-engine.generated_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "skeld.left-engine.fuel-engine",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -15.34,
+          "y": -1.1
+        },
+        {
+          "x": -15.49,
+          "y": -1.15
+        },
+        {
+          "x": -18.48,
+          "y": -1.15
+        },
+        {
+          "x": -18.349998,
+          "y": -1.049998
+        },
+        {
+          "x": -18.249998,
+          "y": -1.049998
+        },
+        {
+          "x": -18.149997,
+          "y": -0.949998
+        },
+        {
+          "x": -18.04,
+          "y": -0.8
+        },
+        {
+          "x": -18.038925,
+          "y": -0.606695
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.lower_to_right-engine.divert-power.observed_01",
+      "fromAnchorId": "engine.lower",
+      "toAnchorId": "skeld.right-engine.divert-power",
+      "path": [
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        },
+        {
+          "x": -15.26959,
+          "y": -10.27467
+        },
+        {
+          "x": -15.636113,
+          "y": -9.892395
+        },
+        {
+          "x": -18.039827,
+          "y": -9.892395
+        },
+        {
+          "x": -18.039848,
+          "y": -9.814977
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.lower_to_right-engine.align-engine.observed_01",
+      "fromAnchorId": "engine.lower",
+      "toAnchorId": "skeld.right-engine.align-engine",
+      "path": [
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        },
+        {
+          "x": -15.239896,
+          "y": -13.438376
+        },
+        {
+          "x": -15.5,
+          "y": -13.3
+        },
+        {
+          "x": -18.3,
+          "y": -13.3
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "engine.lower_to_right-engine.fuel-engine.generated_01",
+      "fromAnchorId": "engine.lower",
+      "toAnchorId": "skeld.right-engine.fuel-engine",
+      "path": [
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        },
+        {
+          "x": -15.24,
+          "y": -13.43
+        },
+        {
+          "x": -15.33,
+          "y": -13.53
+        },
+        {
+          "x": -17.75,
+          "y": -13.53
+        },
+        {
+          "x": -17.75,
+          "y": -12.82
+        },
+        {
+          "x": -17.949997,
+          "y": -12.849998
+        },
+        {
+          "x": -18.014517,
+          "y": -12.813073
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "medical.entry_to_medical.med-scanner.generated_01",
+      "fromAnchorId": "medical.entry",
+      "toAnchorId": "skeld.medical.med-scanner",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        },
+        {
+          "x": -8.849997,
+          "y": -4.649998
+        },
+        {
+          "x": -8.549997,
+          "y": -4.949998
+        },
+        {
+          "x": -7.649997,
+          "y": -4.949998
+        },
+        {
+          "x": -7.149997,
+          "y": -5.249998
+        },
+        {
+          "x": -7.0134,
+          "y": -5.2476
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "junction.right.02_to_cockpit.fix-wiring.approach.observed_01",
+      "fromAnchorId": "junction.right.02",
+      "toAnchorId": "skeld.cockpit.fix-wiring.approach",
+      "path": [
+        {
+          "x": 11.815058,
+          "y": -5.204583
+        },
+        {
+          "x": 11.909844,
+          "y": -5.250819
+        },
+        {
+          "x": 14.409836,
+          "y": -5.2508187
+        },
+        {
+          "x": 14.409935,
+          "y": -4.697855
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "shields.guided_arrival_to_shields.shield.observed_02",
+      "fromAnchorId": "shields.guided_arrival",
+      "toAnchorId": "skeld.shields.shield",
+      "path": [
+        {
+          "x": 9.642466,
+          "y": -12.811722
+        },
+        {
+          "x": 9.283619,
+          "y": -12.870375
+        },
+        {
+          "x": 9.283619,
+          "y": -14.537037
+        },
+        {
+          "x": 7.5336256,
+          "y": -14.537037
+        },
+        {
+          "x": 7.523178,
+          "y": -14.484334
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.anchor.bottom_to_admin.vent-cleaning.auto_grid_01",
+      "fromAnchorId": "admin.anchor.bottom",
+      "toAnchorId": "skeld.admin.vent-cleaning",
+      "path": [
+        {
+          "x": 4.641275,
+          "y": -10.08626
+        },
+        {
+          "x": 2.650003,
+          "y": -10.049998
+        },
+        {
+          "x": 2.544,
+          "y": -9.955201
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "engine.lower_to_right-engine.vent-cleaning.auto_grid_01",
+      "fromAnchorId": "engine.lower",
+      "toAnchorId": "skeld.right-engine.vent-cleaning",
+      "path": [
+        {
+          "x": -15.252331,
+          "y": -11.954123
+        },
+        {
+          "x": -15.2508,
+          "y": -13.656001
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.vent-cleaning.lower.observed_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.vent-cleaning.lower",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.387558,
+          "y": -5.650368
+        },
+        {
+          "x": -20.440886,
+          "y": -6.5370245
+        },
+        {
+          "x": -20.79444,
+          "y": -6.89058
+        },
+        {
+          "x": -20.80004,
+          "y": -7.146178
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "reactor.entry_to_reactor.vent-cleaning.upper.observed_01",
+      "fromAnchorId": "reactor.entry",
+      "toAnchorId": "skeld.reactor.vent-cleaning.upper",
+      "path": [
+        {
+          "x": -20.8357,
+          "y": -5.620815
+        },
+        {
+          "x": -20.031866,
+          "y": -5.5540876
+        },
+        {
+          "x": -21.018005,
+          "y": -4.567951
+        },
+        {
+          "x": -21.269306,
+          "y": -4.171781
+        },
+        {
+          "x": -21.269306,
+          "y": -3.3999848
+        },
+        {
+          "x": -21.519308,
+          "y": -3.399985
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "cafeteria.right_to_cafeteria.vent-cleaning.direct_01",
+      "fromAnchorId": "cafeteria.right",
+      "toAnchorId": "skeld.cafeteria.vent-cleaning",
+      "path": [
+        {
+          "x": 3.502483,
+          "y": 0.822564
+        },
+        {
+          "x": 4.2588,
+          "y": -0.276
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_skeld.cockpit.vent.north.auto_grid_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.vent.north",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.008002,
+          "y": -3.168
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_skeld.cockpit.vent.south.auto_grid_01",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.vent.south",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 16.350003,
+          "y": -5.649998
+        },
+        {
+          "x": 16.008002,
+          "y": -6.384
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "electrical.anchor.top_to_skeld.electrical.vent.auto_grid_01",
+      "fromAnchorId": "electrical.anchor.top",
+      "toAnchorId": "skeld.electrical.vent",
+      "path": [
+        {
+          "x": -8.041126,
+          "y": -8.929606
+        },
+        {
+          "x": -8.549997,
+          "y": -8.549998
+        },
+        {
+          "x": -9.784,
+          "y": -8.028
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "engine.upper_to_skeld.left-engine.vent.auto_grid_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "skeld.left-engine.vent",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -15.288,
+          "y": 2.52
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "medical.entry_to_skeld.medical.vent.auto_grid_01",
+      "fromAnchorId": "medical.entry",
+      "toAnchorId": "skeld.medical.vent",
+      "path": [
+        {
+          "x": -9.158753,
+          "y": -4.608406
+        },
+        {
+          "x": -9.449997,
+          "y": -4.649998
+        },
+        {
+          "x": -9.749997,
+          "y": -4.349998
+        },
+        {
+          "x": -10.249997,
+          "y": -4.349998
+        },
+        {
+          "x": -10.608,
+          "y": -4.176
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "security.entry_to_skeld.security.vent.auto_grid_01",
+      "fromAnchorId": "security.entry",
+      "toAnchorId": "skeld.security.vent",
+      "path": [
+        {
+          "x": -13.669004,
+          "y": -5.620815
+        },
+        {
+          "x": -12.649997,
+          "y": -6.649998
+        },
+        {
+          "x": -12.528,
+          "y": -6.948
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "shields.guided_arrival_to_skeld.shields.vent.auto_grid_01",
+      "fromAnchorId": "shields.guided_arrival",
+      "toAnchorId": "skeld.shields.vent",
+      "path": [
+        {
+          "x": 9.642466,
+          "y": -12.811722
+        },
+        {
+          "x": 9.650003,
+          "y": -14.149998
+        },
+        {
+          "x": 9.516,
+          "y": -14.34
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "weapons.guided_start_to_skeld.weapons.vent.auto_grid_01",
+      "fromAnchorId": "weapons.guided_start",
+      "toAnchorId": "skeld.weapons.vent",
+      "path": [
+        {
+          "x": 8.9122,
+          "y": 1.0177
+        },
+        {
+          "x": 8.950003,
+          "y": 3.150002
+        },
+        {
+          "x": 8.82,
+          "y": 3.324
+        }
+      ],
+      "status": "generated_validated"
+    },
+    {
+      "segmentId": "engine.upper_to_left-engine.vent-cleaning.generated_01",
+      "fromAnchorId": "engine.upper",
+      "toAnchorId": "skeld.left-engine.vent-cleaning",
+      "path": [
+        {
+          "x": -15.325397,
+          "y": 0.808254
+        },
+        {
+          "x": -15.349997,
+          "y": 1.550002
+        },
+        {
+          "x": -15.288,
+          "y": 1.7
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "junction.right.02_to_skeld.big-y.vent-cleaning.recorded_01",
+      "fromAnchorId": "junction.right.02",
+      "toAnchorId": "skeld.big-y.vent-cleaning",
+      "path": [
+        {
+          "x": 11.815058,
+          "y": -5.204583
+        },
+        {
+          "x": 11.991869,
+          "y": -5.0364203
+        },
+        {
+          "x": 11.991869,
+          "y": -6.7030807
+        },
+        {
+          "x": 9.491878,
+          "y": -6.703081
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "shields.guided_arrival_to_skeld.big-y.vent-cleaning.direct_01",
+      "fromAnchorId": "shields.guided_arrival",
+      "toAnchorId": "skeld.big-y.vent-cleaning",
+      "path": [
+        {
+          "x": 9.642466,
+          "y": -12.811722
+        },
+        {
+          "x": 9.491878,
+          "y": -6.703081
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "navigation.guided_arrival_to_cockpit.fix-wiring.floor_20261106",
+      "fromAnchorId": "navigation.guided_arrival",
+      "toAnchorId": "skeld.cockpit.fix-wiring",
+      "path": [
+        {
+          "x": 16.988533,
+          "y": -5.09572
+        },
+        {
+          "x": 15.615568,
+          "y": -5.1359115
+        },
+        {
+          "x": 14.52,
+          "y": -4.85
+        }
+      ],
+      "status": "observed_success"
+    },
+    {
+      "segmentId": "admin.upload-to-vent.observed_01",
+      "fromAnchorId": "skeld.admin.upload-data",
+      "toAnchorId": "skeld.admin.vent-cleaning",
+      "path": [
+        {
+          "x": 2.297502,
+          "y": -6.865455
+        },
+        {
+          "x": 2.29762,
+          "y": -7.4123535
+        },
+        {
+          "x": 2.29762,
+          "y": -9.955201
+        },
+        {
+          "x": 2.544,
+          "y": -9.955201
+        }
+      ],
+      "status": "observed_success"
+    }
+  ]
+}

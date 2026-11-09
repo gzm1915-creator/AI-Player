@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "start-reactor",
+  "name": "Start Reactor",
+  "version": "1.0.0",
+  "entrypoint": "skills.start_reactor:run_skill",
+  "taskTypes": [
+    "StartReactor"
+  ],
+  "trigger": {
+    "phase": "TASKS",
+    "startAt": "Reactor",
+    "requiresMinigameOpen": true
+  },
+  "defaults": {
+    "window": "Among Us",
+    "fps": 30.0,
+    "backend": "auto"
+  },
+  "dependencies": {
+    "required": [
+      "numpy",
+      "Pillow"
+    ],
+    "optional": [
+      "opencv-python",
+      "cupy"
+    ]
+  }
+}
