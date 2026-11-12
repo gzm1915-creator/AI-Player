@@ -1,8 +1,10 @@
 """Replay colloquial meeting chat without sending chat or casting votes."""
+
 import copy
 import importlib
 import json
 import unittest
+
 import test_bridge as fixture
 
 b = fixture.b
@@ -35,7 +37,18 @@ class MeetingStrategyTests(unittest.TestCase):
         self.assertTrue(strategy.meeting_context({})["rules"])
 
     def test_other_player_slang_is_explained_with_speaker_attribution(self):
-        self.chat([{"event": "chat", "index": 1, "speakerId": 2, "speaker": "蓝", "text": "红有金水，黄银水，我和白互保，黑进狼坑", "isLocalPlayer": False}])
+        self.chat(
+            [
+                {
+                    "event": "chat",
+                    "index": 1,
+                    "speakerId": 2,
+                    "speaker": "蓝",
+                    "text": "红有金水，黄银水，我和白互保，黑进狼坑",
+                    "isLocalPlayer": False,
+                }
+            ]
+        )
         state = self.bridge.read()
         terms = {entry["term"]: entry for entry in state["meetingStrategy"]["mentionedTerms"]}
         self.assertTrue({"金水", "银水", "互保", "狼坑"}.issubset(terms))
@@ -87,20 +100,38 @@ class MeetingStrategyTests(unittest.TestCase):
 
     def test_same_match_public_evidence_only_no_private_kill_or_previous_round(self):
         identity = ["session", 1, "TheSkeld"]
-        state = {"connected": True, "sessionId": "session", "matchId": 1, "mapId": "TheSkeld", "history": {
-            "identity": identity, "scope": "current_match", "timeline": [
-                {"event": "player_encounter", "eventId": "public1", "at": "sample", "player": {"playerId": 1}},
-                {"event": "task_completed", "eventId": "task1", "taskBatch": 2, "task": {"taskType": "SwipeCard", "complete": True}},
-                {"event": "impostor_kill_confirmed", "eventId": "private1", "visibility": "impostor_private"},
-                {"event": "area_changed", "eventId": "private2", "visibility": "impostor_private"}]}}
+        state = {
+            "connected": True,
+            "sessionId": "session",
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "history": {
+                "identity": identity,
+                "scope": "current_match",
+                "timeline": [
+                    {"event": "player_encounter", "eventId": "public1", "at": "sample", "player": {"playerId": 1}},
+                    {
+                        "event": "task_completed",
+                        "eventId": "task1",
+                        "taskBatch": 2,
+                        "task": {"taskType": "SwipeCard", "complete": True},
+                    },
+                    {"event": "impostor_kill_confirmed", "eventId": "private1", "visibility": "impostor_private"},
+                    {"event": "area_changed", "eventId": "private2", "visibility": "impostor_private"},
+                ],
+            },
+        }
         context = strategy.meeting_context(state)
         self.assertEqual([e["eventId"] for e in context["evidence"]], ["public1", "task1"])
         self.assertEqual(context["evidence"][1]["task"]["taskType"], "SwipeCard")
         for change in ("stale", "paused", "previous_match"):
             sample = copy.deepcopy(state)
-            if change == "stale": sample["connected"] = False
-            if change == "paused": sample["history"]["recordingEnabled"] = False
-            if change == "previous_match": sample["history"]["identity"][1] = 0
+            if change == "stale":
+                sample["connected"] = False
+            if change == "paused":
+                sample["history"]["recordingEnabled"] = False
+            if change == "previous_match":
+                sample["history"]["identity"][1] = 0
             self.assertEqual(strategy.meeting_context(sample)["evidence"], [])
 
     def test_no_automatic_speaking_and_tools_expose_current_term_explanation(self):
@@ -108,7 +139,9 @@ class MeetingStrategyTests(unittest.TestCase):
         monitor = b.Monitor(self.bridge, lambda **kw: calls.append(kw))
         monitor.tick()
         self.assertEqual(calls[-1]["ai_behavior"], "read")
-        self.chat([{"event": "chat", "index": 1, "speakerId": 1, "text": "你说的金水怎么验的？", "isLocalPlayer": False}])
+        self.chat(
+            [{"event": "chat", "index": 1, "speakerId": 1, "text": "你说的金水怎么验的？", "isLocalPlayer": False}]
+        )
         monitor.last_response = 0
         monitor.tick()
         self.assertEqual(calls[-1]["ai_behavior"], "respond")
@@ -129,4 +162,3 @@ class MeetingStrategyTests(unittest.TestCase):
         for templates in pack["templates"].values():
             for template in templates:
                 self.assertLessEqual(len(template["text"]), 100)
-

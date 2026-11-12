@@ -1,7 +1,8 @@
 """Replay bounded disguises, one-time extra stops and room-first patrols."""
-import copy
+
 import unittest
 from unittest.mock import patch
+
 import test_impostor as fixture
 import test_room_sweep as circuits
 
@@ -58,7 +59,9 @@ class CoverLimitTests(unittest.TestCase):
         imp.cover_counts[key] = 2
         task["step"] = 2
         task["locations"] = [self.anchors[1]["position"]]
-        self.assertFalse(any(t.get("taskId") == task["taskId"] for _, t in imp.cover_targets(state, self.anchors, 1000)))
+        self.assertFalse(
+            any(t.get("taskId") == task["taskId"] for _, t in imp.cover_targets(state, self.anchors, 1000))
+        )
 
     def test_retired_cover_point_is_not_reused_as_a_patrol_stop(self):
         self.circuit()
@@ -103,10 +106,21 @@ class CoverLimitTests(unittest.TestCase):
     def extras(self):
         self.anchors = [
             {"anchorId": "skeld." + name + ".fix-wiring", "roomId": room, "kind": "task", "position": {"x": x, "y": 0}}
-            for name, room, x in (("electrical", "Electrical", -8), ("admin", "Admin", 2),
-                                  ("storage", "Storage", -2), ("cafeteria", "Cafeteria", 1))]
-        self.anchors += [{"anchorId": "skeld.comms.upload-data", "roomId": "Communications", "kind": "task",
-                          "position": {"x": 5, "y": -15}}]
+            for name, room, x in (
+                ("electrical", "Electrical", -8),
+                ("admin", "Admin", 2),
+                ("storage", "Storage", -2),
+                ("cafeteria", "Cafeteria", 1),
+            )
+        ]
+        self.anchors += [
+            {
+                "anchorId": "skeld.comms.upload-data",
+                "roomId": "Communications",
+                "kind": "task",
+                "position": {"x": 5, "y": -15},
+            }
+        ]
         self.t["nearbyPlayers"] = []
         self.t["ui"]["ownTasks"] = []
         self.save()
@@ -133,13 +147,14 @@ class CoverLimitTests(unittest.TestCase):
         for anchor, task in choices:
             aid = anchor["anchorId"]
             imp.cover_anchor_counts[aid] = 1
-            state["tasks"].append({"taskId": len(state["tasks"]), "taskType": task["taskType"],
-                                   "locations": [anchor["position"]]})
+            state["tasks"].append(
+                {"taskId": len(state["tasks"]), "taskType": task["taskType"], "locations": [anchor["position"]]}
+            )
         self.assertEqual(imp.cover_targets(state, self.anchors, 1000), [])
         self.assertIsNone(imp.patrol_target(state, [a for a, _ in choices], 1000))
 
     def test_extra_stops_never_open_real_minigames_and_keep_plan_on_resume(self):
-        state = self.extras()
+        self.extras()
         imp = self.pilot.impostor
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
         command = self.tick(100)
@@ -157,7 +172,9 @@ class CoverLimitTests(unittest.TestCase):
     def test_medical_entry_is_a_walk_through_check_without_a_scan_stop(self):
         self.circuit()
         self.t["ui"]["ownTasks"] = []
-        self.anchors = [{"anchorId": "medical.entry", "roomId": "MedBay", "kind": "waypoint", "position": {"x": -9, "y": -4}}]
+        self.anchors = [
+            {"anchorId": "medical.entry", "roomId": "MedBay", "kind": "waypoint", "position": {"x": -9, "y": -4}}
+        ]
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
         self.assertEqual(self.tick(100)["targetAnchorId"], "medical.entry")
         self.arrive(102)

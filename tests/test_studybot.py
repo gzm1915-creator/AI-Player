@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import test_bridge as fixture
+
 module = importlib.import_module(fixture.b.__package__ + ".studybot")
 
 
@@ -15,8 +16,13 @@ class StudyBotTests(unittest.TestCase):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
-        bridge = SimpleNamespace(root=root, command_path=root / "commands.json", nav_path=root / "status.json",
-                                 journal=SimpleNamespace(root=root, record_action=Mock()), set_runtime=Mock())
+        bridge = SimpleNamespace(
+            root=root,
+            command_path=root / "commands.json",
+            nav_path=root / "status.json",
+            journal=SimpleNamespace(root=root, record_action=Mock()),
+            set_runtime=Mock(),
+        )
         self.runner = module.StudyBot(bridge)
         self.runner.enabled = True
         self.runner.command = Mock(return_value=["python", "original-adapter.py"])
@@ -31,10 +37,18 @@ class StudyBotTests(unittest.TestCase):
         self.spawn = self.popen.start()
         self.addCleanup(self.popen.stop)
         self.addCleanup(self.runner.cancel)
-        self.state = {"connected": True, "phase": "TASKS", "sessionId": "session", "matchId": 1,
-                      "minigameOpen": True, "openMinigame": {"taskId": 7, "instanceId": 99},
-                      "tasks": [{"taskId": 6, "taskType": "SwipeCard", "step": 0},
-                                {"taskId": 7, "taskType": "FixWiring", "step": 1}]}
+        self.state = {
+            "connected": True,
+            "phase": "TASKS",
+            "sessionId": "session",
+            "matchId": 1,
+            "minigameOpen": True,
+            "openMinigame": {"taskId": 7, "instanceId": 99},
+            "tasks": [
+                {"taskId": 6, "taskType": "SwipeCard", "step": 0},
+                {"taskId": 7, "taskType": "FixWiring", "step": 1},
+            ],
+        }
 
     def test_only_open_task_selected_not_nearest_or_first(self):
         self.runner.tick(self.state)
@@ -129,7 +143,12 @@ class StudyBotTests(unittest.TestCase):
 
     def test_empty_or_invalid_preflight_output_is_an_actionable_error(self):
         for stdout in ("", "[]", "{}", '{"engine":"StudyBot","skills":[]}'):
-            with self.subTest(stdout=stdout), patch.object(module.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout=stdout, stderr="")):
+            with (
+                self.subTest(stdout=stdout),
+                patch.object(
+                    module.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout=stdout, stderr="")
+                ),
+            ):
                 with self.assertRaises(ValueError):
                     self.runner.preflight()
                 self.assertFalse(self.runner.ready)

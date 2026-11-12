@@ -1,6 +1,6 @@
 # 引用、参考与发行边界
 
-本发行：**Among us 虚拟玩家 0.1.35**，作者：**JHcys**。署名指本插件的整合与开发，不替代参考项目原作者的权利。
+本发行：**Among us 虚拟玩家 0.1.36**，作者：**JHcys**。署名指本插件的整合与开发，不替代参考项目原作者的权利。
 
 | 项目 | 来源与使用范围 |
 | --- | --- |
@@ -17,9 +17,7 @@ Python、NumPy、Pillow、OpenCV、Tesseract 等依赖由用户另行安装，�
 
 # Distribution boundaries
 
-This package contains the Among Us to N.E.K.O. adapter source, AU Telemetry
-Probe 0.6.91 binary/source with portable paths and native action controls, route geometry,
-tests and installation scripts.
+This market package contains the AI adapter source. The game component and installation scripts are distributed separately; this source tree includes route geometry for tests.
 It does not redistribute Among Us, game-generated interop assemblies,
 BepInEx, Harmony, Il2CppInterop, Unity, N.E.K.O., Python, .NET, speech models,
 or API credentials. Install those dependencies through their official channels.
@@ -49,3 +47,5 @@ copied into this package.
 Among Us belongs to Innersloth. This adapter is not affiliated with or
 endorsed by Innersloth or the N.E.K.O. maintainers. No plugin-marketplace
 publication or vendor compatibility certification has been performed.
+
+Standard verify/release workflows and Ruff policy were generated using the official N.E.K.O. CLI templates (Project N.E.K.O., Apache-2.0).

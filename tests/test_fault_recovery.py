@@ -1,11 +1,12 @@
 """Exercise telemetry loss, schema damage and Windows hand-off contention."""
+
 import copy
 import importlib
 import os
 import threading
 import unittest
-from pathlib import Path
 from unittest.mock import patch
+
 import test_bridge as fixture
 
 b = fixture.b
@@ -61,8 +62,12 @@ class FaultRecoveryTests(unittest.TestCase):
         self.assertNotIn("position", state["self"])
 
     def test_damaged_roster_disables_voting_without_losing_chat(self):
-        for candidates in (None, [None], [{"playerId": True, "eligible": True}],
-                           [{"playerId": 1, "eligible": "false"}]):
+        for candidates in (
+            None,
+            [None],
+            [{"playerId": True, "eligible": True}],
+            [{"playerId": 1, "eligible": "false"}],
+        ):
             with self.subTest(candidates=candidates):
                 self.m["voting"] = {"supported": True, "canVote": True, "candidates": candidates}
                 self.save()
@@ -79,7 +84,8 @@ class FaultRecoveryTests(unittest.TestCase):
                 self.assertTrue(self.bridge.read()["connected"])
 
     def test_navigation_receipt_fallback_expires_and_cannot_cross_matches(self):
-        from datetime import datetime, timezone, timedelta
+        from datetime import datetime, timedelta, timezone
+
         receipt = {"commandId": "neko-running", "state": "running", "updatedAtUtc": self.now()}
         b.atomic(self.bridge.nav_path, receipt)
         self.bridge.read()
@@ -102,23 +108,27 @@ class FaultRecoveryTests(unittest.TestCase):
     def test_slow_host_notification_does_not_lock_out_stop_controls(self):
         entered, release, stopped = threading.Event(), threading.Event(), threading.Event()
         errors = []
+
         def push(**_):
             entered.set()
             release.wait(3)
+
         monitor = b.Monitor(self.bridge, push)
+
         def control():
             try:
                 self.bridge.halt()
                 stopped.set()
             except Exception as exc:
                 errors.append(str(exc))
+
         worker = threading.Thread(target=monitor.tick, daemon=True)
         stopper = threading.Thread(target=control, daemon=True)
         try:
             worker.start()
             self.assertTrue(entered.wait(1))
             stopper.start()
-            self.assertTrue(stopped.wait(.5), "model transport blocked the game stop control")
+            self.assertTrue(stopped.wait(0.5), "model transport blocked the game stop control")
         finally:
             release.set()
             worker.join(2)
@@ -133,18 +143,20 @@ class FaultRecoveryTests(unittest.TestCase):
         b.atomic(path, {"revision": 1})
         with files.open_shared(path) as reader:
             b.atomic(path, {"revision": 2})
-            self.assertIn(b'1', reader.read())
+            self.assertIn(b"1", reader.read())
         self.assertEqual(b.load(path), {"revision": 2})
 
     def test_short_permission_conflict_retries_without_losing_command(self):
         path = self.root / "retry.json"
         replace = files.replace_file
         attempts = []
+
         def contested(source, destination):
             attempts.append(True)
             if len(attempts) == 1:
                 raise PermissionError("synthetic sharing conflict")
             return replace(source, destination)
+
         with patch.object(files, "replace_file", contested), patch.object(files.time, "sleep"):
             b.atomic(path, {"action": "test"})
         self.assertEqual(b.load(path), {"action": "test"})
@@ -154,7 +166,10 @@ class FaultRecoveryTests(unittest.TestCase):
     def test_permanent_permission_failure_is_bounded_and_leaves_old_file_intact(self):
         path = self.root / "preserved.json"
         b.atomic(path, {"revision": 1})
-        with patch.object(files, "replace_file", side_effect=PermissionError("synthetic permanent lock")) as replace, patch.object(files.time, "sleep"):
+        with (
+            patch.object(files, "replace_file", side_effect=PermissionError("synthetic permanent lock")) as replace,
+            patch.object(files.time, "sleep"),
+        ):
             with self.assertRaises(PermissionError):
                 b.atomic(path, {"revision": 2})
             self.assertEqual(replace.call_count, 5)

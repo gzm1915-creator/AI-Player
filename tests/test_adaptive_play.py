@@ -2,8 +2,10 @@
 
 Crew policies are covered in test_predictive_play.py.
 """
+
 import importlib
 import unittest
+
 import test_impostor as fixture
 
 b = fixture.b
@@ -13,8 +15,16 @@ social = importlib.import_module("impostor_fixture.social")
 class ImpostorPatrolTests(unittest.TestCase):
     def setUp(self):
         fixture.ImpostorTests.setUp(self)
-        self.anchors.append({"anchorId": "skeld.cafeteria.interior", "kind": "waypoint", "roomId": "Cafeteria", "position": {"x": 10, "y": 0}})
+        self.anchors.append(
+            {
+                "anchorId": "skeld.cafeteria.interior",
+                "kind": "waypoint",
+                "roomId": "Cafeteria",
+                "position": {"x": 10, "y": 0},
+            }
+        )
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
+
     save = fixture.ImpostorTests.save
     tick = fixture.ImpostorTests.tick
     ack = fixture.ImpostorTests.ack
@@ -32,7 +42,9 @@ class ImpostorPatrolTests(unittest.TestCase):
 
     def test_cover_then_two_patrols_before_another_task_bar_cover(self):
         self.patrol()
-        self.anchors.append({"anchorId": "task.other", "kind": "task", "roomId": "Navigation", "position": {"x": 12, "y": 0}})
+        self.anchors.append(
+            {"anchorId": "task.other", "kind": "task", "roomId": "Navigation", "position": {"x": 12, "y": 0}}
+        )
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
         self.t["ui"]["ownTasks"].append({"taskId": 8, "taskType": "ChartCourse", "locations": [{"x": 12, "y": 0}]})
         self.t["localPlayer"]["position"]["x"] = 10
@@ -52,8 +64,13 @@ class ImpostorPatrolTests(unittest.TestCase):
     def test_safe_native_kill_can_preempt_active_patrol(self):
         self.patrol()
         self.t["nearbyPlayers"] = [{"playerId": 1, "x": 1, "y": 0}]
-        self.t["ownRole"].update(canKill=True, killCooldown=0, killTargetId=1,
-            killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "requiredSeconds": 4, "ready": True}])
+        self.t["ownRole"].update(
+            canKill=True,
+            killCooldown=0,
+            killTargetId=1,
+            killSafetySupported=True,
+            killSafety=[{"targetPlayerId": 1, "requiredSeconds": 4, "ready": True}],
+        )
         self.assertEqual(self.tick(111)["action"], "impostor_kill")
         self.assertIsNotNone(self.pilot.impostor.kill_command)
         self.assertIsNone(self.pilot.impostor.pending)
@@ -72,21 +89,31 @@ class ImpostorPatrolTests(unittest.TestCase):
             patrol = self.patrol()
             self.t["nearbyPlayers"] = [{"playerId": 1, "x": 1, "y": 0}]
             self.t["ownRole"].update(canKill=True, killCooldown=0, killTargetId=1)
-            if case == "current": self.t["nearbyPlayers"].append({"playerId": 3, "x": 2, "y": 0})
-            if case == "recent": self.t["recentPlayers"] = [{"playerId": 3, "x": 2, "y": 0, "ageSeconds": 1, "uncertaintyRadius": 2}]
-            if case == "cooldown": self.t["ownRole"]["killCooldown"] = 10
-            if case == "detection": self.t["playerDetection"]["status"] = "camera_unavailable"
-            if case == "unsafe": self.t["ownRole"].update(killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "requiredSeconds": 4, "ready": False}])
+            if case == "current":
+                self.t["nearbyPlayers"].append({"playerId": 3, "x": 2, "y": 0})
+            if case == "recent":
+                self.t["recentPlayers"] = [{"playerId": 3, "x": 2, "y": 0, "ageSeconds": 1, "uncertaintyRadius": 2}]
+            if case == "cooldown":
+                self.t["ownRole"]["killCooldown"] = 10
+            if case == "detection":
+                self.t["playerDetection"]["status"] = "camera_unavailable"
+            if case == "unsafe":
+                self.t["ownRole"].update(
+                    killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "requiredSeconds": 4, "ready": False}]
+                )
             command = self.tick(111)
             self.assertNotEqual(command["action"], "impostor_kill")
-            if case != "unsafe": self.assertEqual(command["commandId"], patrol["commandId"])
+            if case != "unsafe":
+                self.assertEqual(command["commandId"], patrol["commandId"])
 
     def test_patrol_avoids_crime_scenes_and_does_not_hunt_historical_only_players(self):
         self.opening_cover()
         self.t["nearbyPlayers"] = []
         self.t["recentPlayers"] = [{"playerId": 1, "x": 10, "y": 0, "ageSeconds": 2}]
         self.t["crimeScenes"] = [{"x": 10, "y": 0, "avoidRadius": 3}]
-        self.anchors.append({"anchorId": "safe.interior", "kind": "waypoint", "roomId": "Reactor", "position": {"x": -7, "y": 0}})
+        self.anchors.append(
+            {"anchorId": "safe.interior", "kind": "waypoint", "roomId": "Reactor", "position": {"x": -7, "y": 0}}
+        )
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
         command = self.tick(109)
         self.assertEqual(command["action"], "navigate")

@@ -1,7 +1,10 @@
 """Confirmed kill -> optional vent approach -> guarded transit -> native receipt."""
+
 import unittest
 from unittest.mock import patch
+
 import test_impostor as fixture
+
 b = fixture.b
 
 
@@ -11,12 +14,37 @@ class VentEscapeTests(unittest.TestCase):
     tick = fixture.ImpostorTests.tick
     ack = fixture.ImpostorTests.ack
 
-    def prepare(self, entry_x=.5):
+    def prepare(self, entry_x=0.5):
         self.t["ventRole"] = {"roleType": "Impostor", "canVent": True, "inVent": False, "currentVentId": -1}
-        self.t["ventTravel"] = {"supported": True, "escapeSupported": True, "approachSupported": True, "state": "idle", "busy": False}
+        self.t["ventTravel"] = {
+            "supported": True,
+            "escapeSupported": True,
+            "approachSupported": True,
+            "state": "idle",
+            "busy": False,
+        }
         self.t["vents"] = [
-            {"id": 0, "name": "AdminVent", "x": entry_x, "y": 0, "leftId": 1, "rightId": -1, "centerId": -1, "usableDistance": .75},
-            {"id": 1, "name": "CafeVent", "x": 10, "y": 0, "leftId": 0, "rightId": -1, "centerId": -1, "usableDistance": .75}]
+            {
+                "id": 0,
+                "name": "AdminVent",
+                "x": entry_x,
+                "y": 0,
+                "leftId": 1,
+                "rightId": -1,
+                "centerId": -1,
+                "usableDistance": 0.75,
+            },
+            {
+                "id": 1,
+                "name": "CafeVent",
+                "x": 10,
+                "y": 0,
+                "leftId": 0,
+                "rightId": -1,
+                "centerId": -1,
+                "usableDistance": 0.75,
+            },
+        ]
         self.bridge.set_runtime("useVents", True)
         self.tick(100)
         self.ack()
@@ -33,7 +61,10 @@ class VentEscapeTests(unittest.TestCase):
     def test_near_vent_is_automatically_used_only_after_confirmed_kill(self):
         ctrl = self.prepare()
         self.save()
-        with patch("impostor_fixture.impostor.random.uniform", return_value=12) as sample, patch("time.monotonic", return_value=104):
+        with (
+            patch("impostor_fixture.impostor.random.uniform", return_value=12) as sample,
+            patch("time.monotonic", return_value=104),
+        ):
             self.pilot.tick(self.bridge.read())
         sample.assert_called_once_with(2, 15)
         cmd = b.load(self.bridge.vent_path)
@@ -93,12 +124,18 @@ class VentEscapeTests(unittest.TestCase):
             with self.subTest(case=case):
                 self.setUp()
                 self.prepare()
-                if case == "disabled": self.bridge.set_runtime("impostorVentEscape", False)
-                if case == "old": self.t["ventTravel"].pop("escapeSupported")
-                if case == "no_exit": self.t["vents"][0]["leftId"] = -1
-                if case == "far": self.t["vents"][0]["x"] = -20
-                if case == "bad_detection": self.t["playerDetection"]["status"] = "partial"
-                if case == "permission": self.bridge.set_runtime("useVents", False)
+                if case == "disabled":
+                    self.bridge.set_runtime("impostorVentEscape", False)
+                if case == "old":
+                    self.t["ventTravel"].pop("escapeSupported")
+                if case == "no_exit":
+                    self.t["vents"][0]["leftId"] = -1
+                if case == "far":
+                    self.t["vents"][0]["x"] = -20
+                if case == "bad_detection":
+                    self.t["playerDetection"]["status"] = "partial"
+                if case == "permission":
+                    self.bridge.set_runtime("useVents", False)
                 self.assertEqual(self.tick(104)["action"], "navigate")
                 self.assertFalse(self.bridge.vent_path.exists())
 
@@ -106,7 +143,9 @@ class VentEscapeTests(unittest.TestCase):
         ctrl = self.prepare()
         self.tick(104)
         cmd = b.load(self.bridge.vent_path)["commandId"]
-        self.t["ventTravel"].update(commandId=cmd, state="running", busy=True, stage="observing_exit", reason="出口附近有人，继续隐藏")
+        self.t["ventTravel"].update(
+            commandId=cmd, state="running", busy=True, stage="observing_exit", reason="出口附近有人，继续隐藏"
+        )
         self.t["ventRole"].update(inVent=True, currentVentId=1)
         self.t["localPlayer"]["canMove"] = False
         self.tick(106)
@@ -124,7 +163,9 @@ class VentEscapeTests(unittest.TestCase):
         self.tick(104)
         cmd = b.load(self.bridge.vent_path)["commandId"]
         before = b.load(self.bridge.command_path)
-        self.t["ventTravel"].update(commandId=cmd, state="failed", busy=False, safeExitConfirmed=False, reason="出口有人，保持隐藏")
+        self.t["ventTravel"].update(
+            commandId=cmd, state="failed", busy=False, safeExitConfirmed=False, reason="出口有人，保持隐藏"
+        )
         self.t["ventRole"].update(inVent=True, currentVentId=1)
         self.t["localPlayer"]["canMove"] = False
         self.tick(110)
@@ -142,4 +183,5 @@ class VentEscapeTests(unittest.TestCase):
         self.assertFalse(self.bridge.vent_path.exists())
 
 
-if __name__ == "__main__": unittest.main()
+if __name__ == "__main__":
+    unittest.main()

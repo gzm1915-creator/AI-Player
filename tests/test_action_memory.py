@@ -1,4 +1,5 @@
 """Regression scenarios for observation order, reused tasks and fleeting players."""
+
 import copy
 import importlib
 import sys
@@ -9,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 package = types.ModuleType("memory_fixture")
-package.__path__ = [str(Path(__file__).resolve().parents[1] / "plugin/among_us_neko")]
+package.__path__ = [str(Path(__file__).resolve().parents[1])]
 sys.modules[package.__name__] = package
 j = importlib.import_module("memory_fixture.journal")
 s = importlib.import_module("memory_fixture.spatial")
@@ -23,11 +24,23 @@ class ActionMemoryTests(unittest.TestCase):
         self.journal = j.Journal(Path(tmp.name) / "history")
         self.addCleanup(self.journal.flush)
         self.epoch = datetime.now(timezone.utc) - timedelta(seconds=100)
-        self.base = {"connected": True, "sessionId": "12345678-1234-1234-1234-123456789012", "matchId": 1,
-                     "mapId": "TheSkeld", "meetingId": 0, "phase": "TASKS", "nearbyPlayers": [],
-                     "self": {"position": {"x": 1, "y": 2}},
-                     "nearestAnchor": {"anchorId": "skeld.admin.fix-wiring", "room": "Admin", "label": "管理室·修复线路", "distance": .1},
-                     "tasks": [{"taskId": 0, "taskType": "FixWiring", "step": 0, "maxStep": 3, "complete": False}]}
+        self.base = {
+            "connected": True,
+            "sessionId": "12345678-1234-1234-1234-123456789012",
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "meetingId": 0,
+            "phase": "TASKS",
+            "nearbyPlayers": [],
+            "self": {"position": {"x": 1, "y": 2}},
+            "nearestAnchor": {
+                "anchorId": "skeld.admin.fix-wiring",
+                "room": "Admin",
+                "label": "管理室·修复线路",
+                "distance": 0.1,
+            },
+            "tasks": [{"taskId": 0, "taskType": "FixWiring", "step": 0, "maxStep": 3, "complete": False}],
+        }
 
     def observe(self, sec, **fields):
         state = {**copy.deepcopy(self.base), **fields, "telemetryAt": (self.epoch + timedelta(seconds=sec)).isoformat()}
@@ -67,16 +80,24 @@ class ActionMemoryTests(unittest.TestCase):
 
     def test_subsecond_player_is_persisted_and_departure_is_not_current_position(self):
         self.observe(0)
-        player = {"playerId": 7, "playerName": "小蓝", "colorName": "蓝色", "x": 2, "y": 2,
-                  "presence": "visible_now",
-                  "relativeToSelf": {"distance": 1, "direction": "+X", "directionName": "右侧"}}
-        self.observe(.1, nearbyPlayers=[player])
-        history = self.observe(.2)
+        player = {
+            "playerId": 7,
+            "playerName": "小蓝",
+            "colorName": "蓝色",
+            "x": 2,
+            "y": 2,
+            "presence": "visible_now",
+            "relativeToSelf": {"distance": 1, "direction": "+X", "directionName": "右侧"},
+        }
+        self.observe(0.1, nearbyPlayers=[player])
+        history = self.observe(0.2)
         self.assertFalse(history["lastSeenPlayers"][0]["isCurrent"])
-        history = self.observe(.8)
+        history = self.observe(0.8)
         self.assertEqual(history["lastSeenPlayers"][0]["presence"], "last_seen_only")
         self.assertEqual(history["lastSeenPlayers"][0]["player"]["presence"], "last_seen_only")
-        self.assertEqual(history["lastSeenPlayers"][0]["player"]["relativeToSelf"]["reference"], "self_position_at_last_sighting")
+        self.assertEqual(
+            history["lastSeenPlayers"][0]["player"]["relativeToSelf"]["reference"], "self_position_at_last_sighting"
+        )
         self.assertTrue(all(e["player"]["presence"] == "at_event_time" for e in history["encounters"]))
         record = s.action_record(history)
         self.assertIn("小蓝", record["text"])
@@ -87,14 +108,14 @@ class ActionMemoryTests(unittest.TestCase):
         p = {"playerId": 1, "x": 1, "y": 0}
         q = {"playerId": 2, "x": 2, "y": 0}
         self.observe(0, nearbyPlayers=[p])
-        self.observe(.1, nearbyPlayers=[q])
-        history = self.observe(.2, nearbyPlayers=[p])
+        self.observe(0.1, nearbyPlayers=[q])
+        history = self.observe(0.2, nearbyPlayers=[p])
         self.assertEqual(history["lastSeenPlayers"][0]["player"]["playerId"], 1)
-        self.assertEqual(history["lastSeenPlayers"][0]["lastSeenAt"], (self.epoch + timedelta(seconds=.2)).isoformat())
+        self.assertEqual(history["lastSeenPlayers"][0]["lastSeenAt"], (self.epoch + timedelta(seconds=0.2)).isoformat())
 
     def test_player_movement_carries_from_and_to_positions(self):
         self.observe(0, nearbyPlayers=[{"playerId": 1, "x": 0, "y": 0}])
-        history = self.observe(.3, nearbyPlayers=[{"playerId": 1, "x": 1, "y": 0}])
+        history = self.observe(0.3, nearbyPlayers=[{"playerId": 1, "x": 1, "y": 0}])
         event = next(e for e in history["timeline"] if e["event"] == "player_moved")
         self.assertEqual(event["previousPosition"], {"x": 0, "y": 0})
         self.assertIn("移动到(1.00, 0.00)", s.describe_event(event))

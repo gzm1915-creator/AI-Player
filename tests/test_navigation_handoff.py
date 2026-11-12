@@ -1,6 +1,6 @@
 """Replay navigation -> real task telemetry -> skill command -> next route."""
+
 import importlib
-import json
 import sys
 import tempfile
 import types
@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-PLUGIN = Path(__file__).resolve().parents[1] / "plugin/among_us_neko"
+PLUGIN = Path(__file__).resolve().parents[1]
 package = types.ModuleType("handoff_fixture")
 package.__path__ = [str(PLUGIN)]
 sys.modules[package.__name__] = package
@@ -22,17 +22,41 @@ class NavigationHandoffTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.bridge = b.Bridge(Path(temp.name))
         self.bridge.root.mkdir(parents=True)
-        b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": [
-            {"anchorId": "shared-console", "kind": "task", "position": {"x": 1, "y": 0}},
-            {"anchorId": "next-room", "kind": "task", "position": {"x": 9, "y": 0}}]})
-        self.telemetry = {"sessionId": "12345678-1234-1234-1234-123456789012",
-                          "game": {"phase": "TASKS", "mapId": "TheSkeld", "matchId": 1},
-                          "localPlayer": {"canMove": True, "position": {"space": "unity_world", "x": 0, "y": 0}},
-                          "ui": {"minigameOpen": False, "ownTasks": [
-                              {"taskId": 3, "taskType": "FixWiring", "step": 0, "maxStep": 3,
-                               "locations": [{"x": 1, "y": 0}], "complete": False},
-                              {"taskId": 4, "taskType": "UploadData", "step": 0, "maxStep": 2,
-                               "locations": [{"x": 1, "y": 0}], "complete": False}]}}
+        b.atomic(
+            self.bridge.root / "data/skeld-route-observations.json",
+            {
+                "anchors": [
+                    {"anchorId": "shared-console", "kind": "task", "position": {"x": 1, "y": 0}},
+                    {"anchorId": "next-room", "kind": "task", "position": {"x": 9, "y": 0}},
+                ]
+            },
+        )
+        self.telemetry = {
+            "sessionId": "12345678-1234-1234-1234-123456789012",
+            "game": {"phase": "TASKS", "mapId": "TheSkeld", "matchId": 1},
+            "localPlayer": {"canMove": True, "position": {"space": "unity_world", "x": 0, "y": 0}},
+            "ui": {
+                "minigameOpen": False,
+                "ownTasks": [
+                    {
+                        "taskId": 3,
+                        "taskType": "FixWiring",
+                        "step": 0,
+                        "maxStep": 3,
+                        "locations": [{"x": 1, "y": 0}],
+                        "complete": False,
+                    },
+                    {
+                        "taskId": 4,
+                        "taskType": "UploadData",
+                        "step": 0,
+                        "maxStep": 2,
+                        "locations": [{"x": 1, "y": 0}],
+                        "complete": False,
+                    },
+                ],
+            },
+        }
         self.monitor = b.Monitor(self.bridge, lambda **_: None)
         self.monitor.pilot.set_enabled(True)
         self.bridge.set_runtime("autoNavigation", True)
@@ -59,12 +83,13 @@ class NavigationHandoffTests(unittest.TestCase):
         if command_id is not None:
             cmd = {"commandId": command_id, "action": action or "close_minigame"}
             b.atomic(self.bridge.command_path, cmd)
-        b.atomic(self.bridge.nav_path, {"commandId": cmd["commandId"], "state": state,
-                                       "completionMode": "interaction_opened", "error": None})
+        b.atomic(
+            self.bridge.nav_path,
+            {"commandId": cmd["commandId"], "state": state, "completionMode": "interaction_opened", "error": None},
+        )
 
     def open_task(self, task_id):
-        self.telemetry["ui"].update(minigameOpen=True, openMinigameTaskId=task_id,
-                                    openMinigameInstanceId=100 + task_id)
+        self.telemetry["ui"].update(minigameOpen=True, openMinigameTaskId=task_id, openMinigameInstanceId=100 + task_id)
         self.telemetry["localPlayer"]["canMove"] = False
 
     def close_task(self):
@@ -89,8 +114,10 @@ class NavigationHandoffTests(unittest.TestCase):
         b.atomic(self.bridge.nav_path, receipt)
         self.tick(101)
         load = b.load
+
         def intermittent(path):
             return {} if Path(path) == self.bridge.nav_path else load(path)
+
         with patch.object(b, "load", side_effect=intermittent):
             self.tick(106)
         self.assertEqual(self.monitor.pilot.pending, original)
@@ -321,10 +348,12 @@ class NavigationHandoffTests(unittest.TestCase):
 
     def test_navigation_waits_until_game_applies_enable_revision(self):
         b.atomic(self.bridge.runtime_status_path, {"autoNavigation": False, "revision": 0})
+
         def apply_runtime(_):
             self.assertFalse(self.bridge.command_path.exists())
             requested = b.load(self.bridge.control_path)
             b.atomic(self.bridge.runtime_status_path, {"autoNavigation": True, "revision": requested["revision"]})
+
         with patch("handoff_fixture.bridge.time.sleep", side_effect=apply_runtime) as wait:
             self.tick(100)
         self.assertTrue(wait.called)
@@ -335,8 +364,10 @@ class NavigationHandoffTests(unittest.TestCase):
         clock = [100.0]
         self.telemetry["sentAtUtc"] = datetime.now(timezone.utc).isoformat()
         b.atomic(self.bridge.root / "latest.json", self.telemetry)
+
         def advance(_):
             clock[0] += 1
+
         with patch("time.monotonic", side_effect=lambda: clock[0]), patch("time.sleep", side_effect=advance):
             self.monitor.tick()
         self.assertFalse(self.bridge.command_path.exists())
@@ -346,8 +377,10 @@ class NavigationHandoffTests(unittest.TestCase):
     def test_graph_start_failure_releases_pending_navigation(self):
         self.tick(100)
         command_id = self.monitor.pilot.pending
-        b.atomic(self.bridge.nav_path, {"commandId": command_id, "state": "navigation_start_failed",
-                                      "error": "A* could not find a route."})
+        b.atomic(
+            self.bridge.nav_path,
+            {"commandId": command_id, "state": "navigation_start_failed", "error": "A* could not find a route."},
+        )
         self.tick(101)
         self.assertIsNone(self.monitor.pilot.pending)
         self.assertEqual(self.bridge.read()["navigation"]["failureCode"], "navigation_start_failed")

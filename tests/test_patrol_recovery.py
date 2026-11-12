@@ -1,7 +1,9 @@
 """Replay room patrol, command ownership, recovery tickets and kill explanations."""
+
 import importlib
 import unittest
 from unittest.mock import patch
+
 import test_impostor as fixture
 
 b = fixture.b
@@ -43,9 +45,14 @@ class PatrolRecoveryTests(unittest.TestCase):
         impostor = self.pilot.impostor
         valid = self.anchor()
         self.assertTrue(impostor.inside_room(valid))
-        for aid, room, kind in [("room.entry", "Reactor", "waypoint"), ("room.door", "Reactor", "waypoint"),
-                                ("room.a", "Hallway_Cross", "waypoint"), ("room.a", None, "waypoint"),
-                                ("room.vent", "Reactor", "vent"), ("skeld.weapons.asteroid", "Weapons", "task")]:
+        for aid, room, kind in [
+            ("room.entry", "Reactor", "waypoint"),
+            ("room.door", "Reactor", "waypoint"),
+            ("room.a", "Hallway_Cross", "waypoint"),
+            ("room.a", None, "waypoint"),
+            ("room.vent", "Reactor", "vent"),
+            ("skeld.weapons.asteroid", "Weapons", "task"),
+        ]:
             anchor = self.anchor(aid, room, kind=kind)
             self.assertFalse(impostor.inside_room(anchor), anchor)
         choices = [self.anchor("room.entry"), self.anchor("room.hall", "Hallway_Cross"), valid]
@@ -63,7 +70,7 @@ class PatrolRecoveryTests(unittest.TestCase):
         self.tick(102)
         self.assertEqual(imp.patrol_rooms_until["Reactor"], 192)
         self.assertEqual(imp.patrol_anchors_until["room.a"], 282)
-        self.assertGreaterEqual(imp.patrol_stop_seconds, .6)
+        self.assertGreaterEqual(imp.patrol_stop_seconds, 0.6)
         self.assertLessEqual(imp.patrol_stop_seconds, 2)
 
     def test_return_to_same_room_uses_another_available_interior(self):
@@ -86,8 +93,13 @@ class PatrolRecoveryTests(unittest.TestCase):
         self.ack()
         self.tick(102)
         self.t["nearbyPlayers"] = [{"playerId": 1, "x": 7, "y": 0}]
-        self.t["ownRole"].update(canKill=True, killCooldown=0, killTargetId=1,
-            killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "ready": True, "requiredSeconds": 4}])
+        self.t["ownRole"].update(
+            canKill=True,
+            killCooldown=0,
+            killTargetId=1,
+            killSafetySupported=True,
+            killSafety=[{"targetPlayerId": 1, "ready": True, "requiredSeconds": 4}],
+        )
         self.assertEqual(self.tick(103.1)["action"], "impostor_kill")
 
     def test_stop_is_not_throttled_by_just_submitted_route(self):
@@ -193,7 +205,14 @@ class PatrolRecoveryTests(unittest.TestCase):
         self.t["ownRole"].update(killCooldown=0)
         self.tick(100)
         command = b.load(self.bridge.command_path)
-        b.atomic(self.bridge.nav_path, {"commandId": command["commandId"], "state": "pursuit_start_failed", "error": "Target is 1.845 from route graph."})
+        b.atomic(
+            self.bridge.nav_path,
+            {
+                "commandId": command["commandId"],
+                "state": "pursuit_start_failed",
+                "error": "Target is 1.845 from route graph.",
+            },
+        )
         self.tick(102)
         self.assertIn("1.845", imp.status()["lastPursuitFailure"]["error"])
         self.assertTrue(self.pilot.enabled)
@@ -201,8 +220,12 @@ class PatrolRecoveryTests(unittest.TestCase):
     def test_kill_diagnostics_distinguish_witnesses_safety_and_native_range(self):
         self.save()
         state = self.bridge.read()
-        state["ownRole"].update(canKill=False, killTargetId=None,
-            killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "ready": False, "requiredSeconds": 3.5}])
+        state["ownRole"].update(
+            canKill=False,
+            killTargetId=None,
+            killSafetySupported=True,
+            killSafety=[{"targetPlayerId": 1, "ready": False, "requiredSeconds": 3.5}],
+        )
         state["recentPlayers"] = [{"playerId": 3, "x": 2, "y": 0, "ageSeconds": 2, "uncertaintyRadius": 1}]
         check = decisions.kill_decisions(state)[0]
         self.assertEqual(check["witnessIds"], [3])

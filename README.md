@@ -1,6 +1,6 @@
 # Among us 虚拟玩家
 
-**作者：JHcys｜版本：0.1.35｜游戏组件：AU Telemetry Probe 0.6.91**
+**作者：JHcys｜版本：0.1.36｜游戏组件：AU Telemetry Probe 0.6.91**
 
 这是一个能够让你的AI伙伴以玩家身份陪伴游玩的插件。
 
@@ -14,11 +14,13 @@
 
 ## 安装教程
 
+本仓库根目录即 N.E.K.O. 插件目录。市场投稿的仓库地址为 `https://github.com/gzm1915-creator/AI-Player`，插件目录留空。首次审核通过后，按 [发布说明](PUBLISHING.md) 生成可安装版本；审核通过不等于已经提供下载。
+
 ### 一、通用游戏端
 
 1. 准备合法安装的 Among Us，在 Steam“管理 → 浏览本地文件”找到包含 `Among Us.exe` 的游戏目录。
 2. 安装 **BepInEx 6 Unity IL2CPP Windows x64**：[官方下载](https://builds.bepinex.dev/projects/bepinex_be)、[官方安装教程](https://docs.bepinex.dev/master/articles/user_guide/installation/unity_il2cpp.html)。启动游戏一次再退出，确认生成 `BepInEx/core/BepInEx.Unity.IL2CPP.dll`。额外 .NET 环境按官方文档安装。
-3. 解压发布包，退出游戏，在解压目录打开 PowerShell，运行以下命令并替换游戏目录：
+3. 从[独立游戏组件包](https://github.com/gzm1915-creator/AI-Player/archive/2a6d83e1378cf5f9a03a357a56667d1d91ab963f.zip)下载并解压，进入其中的 AI-Player 目录，退出游戏，在解压目录打开 PowerShell，运行以下命令并替换游戏目录：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "F:\Games\Among Us"
@@ -31,11 +33,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "
 **N.E.K.O.：**
 
 1. 正常配置 [N.E.K.O.](https://github.com/Project-N-E-K-O/N.E.K.O) 的模型，模型须支持工具调用。文字可用，语音为可选。本适配依据 0.9.1-rc4（目录名0.9.1.0）/ SDK 0.1 编写，其他版本需核对兼容性。
-2. 在插件管理器导入 `among_us_neko-0.1.35.neko-plugin`，不要导入整个 ZIP。
+2. 在插件管理器导入 `among_us_neko.neko-plugin`，不要导入整个 ZIP。
 3. 启动 **Among us 虚拟玩家**，打开“游戏控制”面板，在“Among Us 游戏目录”输入路径并“保存并重新连接”。不需要修改 N.E.K.O. 本体，也无需配置第二份模型密钥。
-4. 若版本没有导入按钮，按该版本官方文档将 `plugin/among_us_neko` 放入**用户插件目录**并刷新，不要修改程序安装目录。
+4. 若版本没有导入按钮，按该版本官方文档将本仓库源码目录命名为 `among_us_neko` 后放入**用户插件目录**并刷新，不要修改程序安装目录。
 
-**其他 AI：**游戏端安装相同，按 [HOST_INTEGRATION.md](HOST_INTEGRATION.md) 编写宿主适配。不要求安装或运行 N.E.K.O. 才能访问游戏接口；当前没有其他宿主的联调兼容保证。
+**其他 AI：**游戏端安装相同，按 [独立接口接入说明](https://github.com/gzm1915-creator/AI-Player/blob/2a6d83e1378cf5f9a03a357a56667d1d91ab963f/HOST_INTEGRATION.md) 编写宿主适配。不要求安装或运行 N.E.K.O. 才能访问游戏接口；当前没有其他宿主的联调兼容保证。
 
 ### 三、小游戏技能（自动做任务时配置）
 
@@ -74,9 +76,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "
 
 ## 引用、更新与卸载
 
-引用 StudyBot 小游戏技能链，参考 Among Us DeepBot 普通内鬼策略设计，并使用 BepInEx 与 N.E.K.O. SDK。具体范围与授权核对见 [THIRD_PARTY.md](THIRD_PARTY.md)。本包不含游戏、AI 宿主、个人历史或模型密钥。
+引用 StudyBot 小游戏技能链，参考 Among Us DeepBot 普通内鬼策略设计，并使用 BepInEx 与 N.E.K.O. SDK。具体范围与授权核对见 [THIRD_PARTY.md](THIRD_PARTY.md)。本市场源码仓库不含游戏 DLL、旧安装包、游戏本体、AI 宿主、个人历史或模型密钥；游戏组件单独下载。
 
-历史功能、实机验证边界见 [CHANGELOG.md](CHANGELOG.md)、[SELF_CHECK.md](SELF_CHECK.md)，会议策略见 [MEETING_STRATEGY.md](MEETING_STRATEGY.md)。历史文档保留当时状态，当前安装步骤以本文为准。0.1.35 仅整理发布信息与说明，沿用 0.1.34 的游玩逻辑。
+历史功能、实机验证边界见 [SELF_CHECK.md](SELF_CHECK.md)，会议策略见 [MEETING_STRATEGY.md](MEETING_STRATEGY.md)。历史文档保留当时状态，当前安装步骤以本文为准。0.1.36 整理市场发布结构、配置模板与标准工作流，沿用原游玩逻辑。
 
 卸载前停止插件并退出游戏，备份记录后通过宿主卸载适配器，移除 `BepInEx/plugins/AUTelemetryProbe` 及独立配置 `BepInEx/config/com.dsh.autelprobe.cfg`。BepInEx 按官方说明卸载，保留其他模组需要的文件。
 

@@ -1,4 +1,5 @@
 """Pipe-network and controller ownership regressions, without game input."""
+
 import asyncio
 import copy
 import importlib
@@ -11,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parents[1] / "plugin/among_us_neko"
+ROOT = Path(__file__).resolve().parents[1]
 package = types.ModuleType("vent_fixture")
 package.__path__ = [str(ROOT)]
 sys.modules[package.__name__] = package
@@ -26,18 +27,41 @@ class VentTests(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.bridge = b.Bridge(tmp.name)
         self.bridge.root.mkdir(parents=True)
-        self.t = {"sessionId": "12345678-1234-1234-1234-123456789012",
-                  "game": {"phase": "TASKS", "matchId": 1, "mapId": "TheSkeld"},
-                  "localPlayer": {"canMove": True, "position": {"space": "unity_world", "x": 0, "y": 0}},
-                  "ownRole": {"roleType": "Impostor", "isImpostor": True, "isDead": False},
-                  "ventRole": {"roleType": "Impostor", "canVent": True, "inVent": False, "currentVentId": -1},
-                  "ventTravel": {"supported": True, "busy": False, "state": "idle"},
-                  "vents": [{"id": i, "x": i * 10, "y": 0, "leftId": i - 1 if i < 3 else -1,
-                             "rightId": i + 1 if i < 2 else -1, "centerId": -1, "usableDistance": 1}
-                            for i in range(4)], "ui": {"ownTasks": []}}
-        b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": [
-            {"anchorId": "skeld.admin.vent", "kind": "vent", "roomId": "Admin", "position": {"x": 0, "y": 0}},
-            {"anchorId": "skeld.admin.swipe-card", "kind": "task", "roomId": "Admin", "position": {"x": 1, "y": 0}}]})
+        self.t = {
+            "sessionId": "12345678-1234-1234-1234-123456789012",
+            "game": {"phase": "TASKS", "matchId": 1, "mapId": "TheSkeld"},
+            "localPlayer": {"canMove": True, "position": {"space": "unity_world", "x": 0, "y": 0}},
+            "ownRole": {"roleType": "Impostor", "isImpostor": True, "isDead": False},
+            "ventRole": {"roleType": "Impostor", "canVent": True, "inVent": False, "currentVentId": -1},
+            "ventTravel": {"supported": True, "busy": False, "state": "idle"},
+            "vents": [
+                {
+                    "id": i,
+                    "x": i * 10,
+                    "y": 0,
+                    "leftId": i - 1 if i < 3 else -1,
+                    "rightId": i + 1 if i < 2 else -1,
+                    "centerId": -1,
+                    "usableDistance": 1,
+                }
+                for i in range(4)
+            ],
+            "ui": {"ownTasks": []},
+        }
+        b.atomic(
+            self.bridge.root / "data/skeld-route-observations.json",
+            {
+                "anchors": [
+                    {"anchorId": "skeld.admin.vent", "kind": "vent", "roomId": "Admin", "position": {"x": 0, "y": 0}},
+                    {
+                        "anchorId": "skeld.admin.swipe-card",
+                        "kind": "task",
+                        "roomId": "Admin",
+                        "position": {"x": 1, "y": 0},
+                    },
+                ]
+            },
+        )
         self.bridge.set_runtime("autoNavigation", True)
         self.bridge.set_runtime("useVents", True)
         self.save()
@@ -57,7 +81,8 @@ class VentTests(unittest.TestCase):
         self.assertIn("未执行", state["summary"])
 
     def test_approach_needs_new_component_and_never_claims_transport_complete(self):
-        with self.assertRaises(ValueError): self.bridge.vent("approach", entry_vent_id=0)
+        with self.assertRaises(ValueError):
+            self.bridge.vent("approach", entry_vent_id=0)
         self.t["ventTravel"].update(approachSupported=True, escapeSupported=True)
         self.save()
         result = self.bridge.vent("approach", entry_vent_id=0)
@@ -89,26 +114,51 @@ class VentTests(unittest.TestCase):
             self.bridge.navigate("skeld.admin.swipe-card")
 
     def test_guards_do_not_write_requests(self):
-        for case in ("old_component", "stale", "meeting", "minigame", "dead", "role", "permission", "navigation", "range", "disconnected", "bool_id", "invented_id"):
+        for case in (
+            "old_component",
+            "stale",
+            "meeting",
+            "minigame",
+            "dead",
+            "role",
+            "permission",
+            "navigation",
+            "range",
+            "disconnected",
+            "bool_id",
+            "invented_id",
+        ):
             with self.subTest(case=case):
                 original = copy.deepcopy(self.t)
                 target = 2
-                if case == "old_component": self.t.pop("ventTravel")
-                if case == "meeting": self.t["game"]["phase"] = "MEETING"
-                if case == "minigame": self.t["ui"]["minigameOpen"] = True
-                if case == "dead": self.t["ownRole"]["isDead"] = True
-                if case == "role": self.t["ventRole"]["roleType"] = "Engineer"
-                if case == "permission": self.bridge.set_runtime("useVents", False)
-                if case == "navigation": self.bridge.set_runtime("autoNavigation", False)
-                if case == "range": self.t["localPlayer"]["position"]["x"] = 50
-                if case == "disconnected": target = 3
-                if case == "bool_id": target = True
-                if case == "invented_id": target = 99
+                if case == "old_component":
+                    self.t.pop("ventTravel")
+                if case == "meeting":
+                    self.t["game"]["phase"] = "MEETING"
+                if case == "minigame":
+                    self.t["ui"]["minigameOpen"] = True
+                if case == "dead":
+                    self.t["ownRole"]["isDead"] = True
+                if case == "role":
+                    self.t["ventRole"]["roleType"] = "Engineer"
+                if case == "permission":
+                    self.bridge.set_runtime("useVents", False)
+                if case == "navigation":
+                    self.bridge.set_runtime("autoNavigation", False)
+                if case == "range":
+                    self.t["localPlayer"]["position"]["x"] = 50
+                if case == "disconnected":
+                    target = 3
+                if case == "bool_id":
+                    target = True
+                if case == "invented_id":
+                    target = 99
                 self.save()
                 if case == "stale":
                     self.t["sentAtUtc"] = (datetime.now(timezone.utc) - timedelta(seconds=10)).isoformat()
                     b.atomic(self.bridge.root / "latest.json", self.t)
-                with self.assertRaises(ValueError): self.bridge.vent("travel", target)
+                with self.assertRaises(ValueError):
+                    self.bridge.vent("travel", target)
                 self.assertFalse(self.bridge.vent_path.exists())
                 self.t = original
                 self.bridge.set_runtime("useVents", True)
@@ -151,17 +201,34 @@ class VentTests(unittest.TestCase):
 
     def test_journal_does_not_count_pipe_displacement(self):
         epoch = datetime.now(timezone.utc) - timedelta(seconds=30)
+
         def observe(index, x, transit=False, receipt=None):
-            state = {"connected": True, "sessionId": "session", "matchId": 1, "mapId": "TheSkeld", "phase": "TASKS",
-                     "telemetryAt": (epoch + timedelta(seconds=index)).isoformat(), "self": {"position": {"x": x, "y": 0}},
-                     "ventRole": {"inVent": transit}, "ventTravel": receipt or {"busy": transit}, "tasks": []}
+            state = {
+                "connected": True,
+                "sessionId": "session",
+                "matchId": 1,
+                "mapId": "TheSkeld",
+                "phase": "TASKS",
+                "telemetryAt": (epoch + timedelta(seconds=index)).isoformat(),
+                "self": {"position": {"x": x, "y": 0}},
+                "ventRole": {"inVent": transit},
+                "ventTravel": receipt or {"busy": transit},
+                "tasks": [],
+            }
             self.bridge.journal.observe(state)
+
         observe(0, 0)
         observe(1, 1)
         observe(2, 1, True)
         observe(3, 50, True)
-        done = {"commandId": "vent-test", "state": "completed", "entryVentId": 0, "targetVentId": 2,
-                "route": [0, 1, 2], "safeExitConfirmed": True}
+        done = {
+            "commandId": "vent-test",
+            "state": "completed",
+            "entryVentId": 0,
+            "targetVentId": 2,
+            "route": [0, 1, 2],
+            "safeExitConfirmed": True,
+        }
         observe(4, 50, receipt=done)
         observe(5, 51, receipt=done)
         history = self.bridge.journal.query()
@@ -181,8 +248,11 @@ class VentTests(unittest.TestCase):
 
     def test_ai_entry_uses_own_skill_and_panel_still_requires_token(self):
         sdk = types.ModuleType("plugin.sdk.plugin")
+
         class Base:
-            def __init__(self, ctx): pass
+            def __init__(self, ctx):
+                pass
+
         sdk.NekoPluginBase = Base
         sdk.neko_plugin = lambda cls: cls
         sdk.Ok = lambda value: value
@@ -190,7 +260,9 @@ class VentTests(unittest.TestCase):
         for dec in ("llm_tool", "plugin_entry", "lifecycle"):
             setattr(sdk, dec, lambda **_: lambda fn: fn)
         with patch.dict(sys.modules, {"plugin.sdk.plugin": sdk}):
-            spec = importlib.util.spec_from_file_location("vent_facade_fixture", ROOT / "__init__.py", submodule_search_locations=[str(ROOT)])
+            spec = importlib.util.spec_from_file_location(
+                "vent_facade_fixture", ROOT / "__init__.py", submodule_search_locations=[str(ROOT)]
+            )
             mod = importlib.util.module_from_spec(spec)
             with patch.dict(sys.modules, {"vent_facade_fixture": mod}):
                 spec.loader.exec_module(mod)
@@ -208,4 +280,5 @@ class VentTests(unittest.TestCase):
             self.assertEqual(result["status"], "submitted")
 
 
-if __name__ == "__main__": unittest.main()
+if __name__ == "__main__":
+    unittest.main()

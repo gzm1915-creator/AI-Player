@@ -1,0 +1,13 @@
+[project]
+name = "among_us_neko"
+version = "0.1.36"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.neko.build]
+exclude = ["tests/**", "game-plugin/**", "PUBLISHING.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Unit tests load the adapter without starting the N.E.K.O. host package.
+addopts = "--confcutdir=tests"

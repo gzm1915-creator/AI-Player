@@ -1,16 +1,17 @@
 """Deterministic replay of role decisions and portable command boundaries."""
+
 import copy
 import importlib
 import sys
 import tempfile
 import types
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 package = types.ModuleType("impostor_fixture")
-package.__path__ = [str(Path(__file__).resolve().parents[1] / "plugin/among_us_neko")]
+package.__path__ = [str(Path(__file__).resolve().parents[1])]
 sys.modules[package.__name__] = package
 b = importlib.import_module("impostor_fixture.bridge")
 
@@ -27,18 +28,31 @@ class ImpostorTests(unittest.TestCase):
             {"anchorId": "skeld.cafeteria.door", "kind": "waypoint", "position": {"x": 10, "y": 0}},
         ]
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
-        self.t = {"sessionId": "12345678-1234-1234-1234-123456789012",
-                  "game": {"phase": "TASKS", "matchId": 1, "mapId": "TheSkeld"},
-                  "localPlayer": {"playerId": 0, "canMove": True, "inVent": False,
-                                  "position": {"space": "unity_world", "x": 0, "y": 0}},
-                  "ownRole": {"roleType": "Impostor", "isImpostor": True, "isDead": False,
-                              "basicImpostorSupported": True, "dynamicPursuitSupported": True, "killCooldown": 0, "canKill": True,
-                              "killTargetId": 1, "teammateIds": [2]},
-                  "playerDetection": {"status": "ok"},
-                  "nearbyPlayers": [{"playerId": 1, "x": 1, "y": 0}],
-                  "activeEmergencies": [],
-                  "ui": {"ownTasks": [{"taskId": 7, "taskType": "SwipeCard", "step": 0,
-                                        "locations": [{"x": 1, "y": 0}]}]}}
+        self.t = {
+            "sessionId": "12345678-1234-1234-1234-123456789012",
+            "game": {"phase": "TASKS", "matchId": 1, "mapId": "TheSkeld"},
+            "localPlayer": {
+                "playerId": 0,
+                "canMove": True,
+                "inVent": False,
+                "position": {"space": "unity_world", "x": 0, "y": 0},
+            },
+            "ownRole": {
+                "roleType": "Impostor",
+                "isImpostor": True,
+                "isDead": False,
+                "basicImpostorSupported": True,
+                "dynamicPursuitSupported": True,
+                "killCooldown": 0,
+                "canKill": True,
+                "killTargetId": 1,
+                "teammateIds": [2],
+            },
+            "playerDetection": {"status": "ok"},
+            "nearbyPlayers": [{"playerId": 1, "x": 1, "y": 0}],
+            "activeEmergencies": [],
+            "ui": {"ownTasks": [{"taskId": 7, "taskType": "SwipeCard", "step": 0, "locations": [{"x": 1, "y": 0}]}]},
+        }
         self.pilot = b.Autopilot(self.bridge)
         self.pilot.set_enabled(True)
         self.bridge.set_runtime("autoNavigation", True)
@@ -83,8 +97,7 @@ class ImpostorTests(unittest.TestCase):
         timeline = self.bridge.history()["timeline"]
         self.assertTrue(any(e["event"] == "impostor_cover" for e in timeline))
         self.assertFalse(any(e["event"] in ("task_completed", "impostor_kill_confirmed") for e in timeline))
-        self.t["impostorAction"] = {"commandId": cmd["commandId"], "state": "completed",
-                                    "position": {"x": 1, "y": 0}}
+        self.t["impostorAction"] = {"commandId": cmd["commandId"], "state": "completed", "position": {"x": 1, "y": 0}}
         self.tick(110)
         self.assertEqual(self.pilot.impostor.phase, "escape")
         escape = self.tick(112)
@@ -163,8 +176,10 @@ class ImpostorTests(unittest.TestCase):
         for case in ("match", "invisible", "target", "stale"):
             with self.subTest(case=case):
                 old = copy.deepcopy(self.t)
-                if case == "invisible": self.t["nearbyPlayers"] = []
-                if case == "target": self.t["ownRole"]["killTargetId"] = 9
+                if case == "invisible":
+                    self.t["nearbyPlayers"] = []
+                if case == "target":
+                    self.t["ownRole"]["killTargetId"] = 9
                 self.save()
                 if case == "stale":
                     self.t["sentAtUtc"] = (datetime.now(timezone.utc) - timedelta(seconds=10)).isoformat()
@@ -222,12 +237,17 @@ class ImpostorTests(unittest.TestCase):
             with self.subTest(case=case):
                 old = copy.deepcopy(self.t)
                 self.t["sabotage"] = {"supported": True, "canSabotage": True}
-                if case == "legacy": self.t["sabotage"] = {}
-                if case == "cooldown": self.t["sabotage"].update(canSabotage=False, reason="破坏冷却中")
-                if case == "meeting": self.t["game"]["phase"] = "MEETING"
-                if case == "crewmate": self.t["ownRole"].update(roleType="Crewmate", isImpostor=False)
+                if case == "legacy":
+                    self.t["sabotage"] = {}
+                if case == "cooldown":
+                    self.t["sabotage"].update(canSabotage=False, reason="破坏冷却中")
+                if case == "meeting":
+                    self.t["game"]["phase"] = "MEETING"
+                if case == "crewmate":
+                    self.t["ownRole"].update(roleType="Crewmate", isImpostor=False)
                 self.save()
-                with self.assertRaises(ValueError): self.bridge.sabotage("doors" if case == "unknown_target" else "lights")
+                with self.assertRaises(ValueError):
+                    self.bridge.sabotage("doors" if case == "unknown_target" else "lights")
                 self.assertFalse(self.bridge.sabotage_path.exists())
                 self.t = old
 
@@ -240,8 +260,11 @@ class ImpostorTests(unittest.TestCase):
         command = b.load(self.bridge.sabotage_path)
         self.assertEqual(command["target"], "comms")
         self.assertFalse(any(e["event"] == "impostor_sabotage_confirmed" for e in self.bridge.history()["timeline"]))
-        self.t["sabotage"] = {"supported": True, "canSabotage": False,
-                              "lastAction": {"commandId": command["commandId"], "state": "completed", "target": "comms"}}
+        self.t["sabotage"] = {
+            "supported": True,
+            "canSabotage": False,
+            "lastAction": {"commandId": command["commandId"], "state": "completed", "target": "comms"},
+        }
         self.tick(111)
         self.assertEqual(sum(e["event"] == "impostor_sabotage_confirmed" for e in self.bridge.history()["timeline"]), 1)
 
@@ -259,40 +282,49 @@ class ImpostorTests(unittest.TestCase):
             {"taskId": 3, "taskType": "UnlockManifolds", "locations": [{"x": 20, "y": 0}]},
         ]
         self.t["nearbyPlayers"] = []
-        first=self.tick(100)
+        first = self.tick(100)
         self.assertEqual(first["targetAnchorId"], "electrical.wiring")
         self.t["localPlayer"]["position"]["x"] = 1
-        self.ack();self.tick(102)
-        second=self.tick(109)
+        self.ack()
+        self.tick(102)
+        second = self.tick(109)
         self.assertEqual(second["targetAnchorId"], "reactor.manifolds")
         self.t["localPlayer"]["position"]["x"] = 20
-        self.ack();self.tick(120)
-        third=self.tick(128)
+        self.ack()
+        self.tick(120)
+        third = self.tick(128)
         self.assertEqual(third["targetAnchorId"], "unassigned.nearest")
         self.assertEqual(self.pilot.impostor.intent, "patrol")
         self.assertFalse(third["interactAfterArrival"])
         self.assertEqual(self.pilot.impostor.fake_task["source"], "own_task_bar")
 
     def test_visual_tasks_and_storage_dump_never_become_cover(self):
-        banned = [("ClearAsteroids", "skeld.weapons.asteroids", "Weapons"),
-                  ("SubmitScan", "skeld.medical.med-scanner", "MedBay"),
-                  ("InspectSample", "skeld.medical.med-bay", "MedBay"),
-                  ("EmptyGarbage", "skeld.storage.garbage.runtime", "Storage")]
-        anchors=[];tasks=[]
-        for i,(kind,aid,room) in enumerate(banned):
-            position={"x": i*10, "y": 0}
-            anchors.append({"anchorId":aid,"kind":"task","roomId":room,"position":position})
-            tasks.append({"taskId":i,"taskType":kind,"locations":[position]})
-        self.assertEqual(self.pilot.impostor.cover_targets({"tasks":tasks},anchors,100),[])
-        self.assertEqual(self.pilot.impostor.cover_targets({"tasks":[]},self.anchors,100),[])
+        banned = [
+            ("ClearAsteroids", "skeld.weapons.asteroids", "Weapons"),
+            ("SubmitScan", "skeld.medical.med-scanner", "MedBay"),
+            ("InspectSample", "skeld.medical.med-bay", "MedBay"),
+            ("EmptyGarbage", "skeld.storage.garbage.runtime", "Storage"),
+        ]
+        anchors = []
+        tasks = []
+        for i, (kind, aid, room) in enumerate(banned):
+            position = {"x": i * 10, "y": 0}
+            anchors.append({"anchorId": aid, "kind": "task", "roomId": room, "position": position})
+            tasks.append({"taskId": i, "taskType": kind, "locations": [position]})
+        self.assertEqual(self.pilot.impostor.cover_targets({"tasks": tasks}, anchors, 100), [])
+        self.assertEqual(self.pilot.impostor.cover_targets({"tasks": []}, self.anchors, 100), [])
 
     def test_cover_dwell_is_sampled_from_five_to_fifteen_seconds(self):
         self.t["nearbyPlayers"] = []
-        self.tick(100);self.ack()
-        with patch("time.monotonic",return_value=102), patch("impostor_fixture.impostor.random.uniform",return_value=15) as sample:
+        self.tick(100)
+        self.ack()
+        with (
+            patch("time.monotonic", return_value=102),
+            patch("impostor_fixture.impostor.random.uniform", return_value=15) as sample,
+        ):
             self.pilot.tick(self.bridge.read())
-        sample.assert_called_once_with(5,15)
-        self.assertEqual(self.pilot.impostor.dwell_until,117)
+        sample.assert_called_once_with(5, 15)
+        self.assertEqual(self.pilot.impostor.dwell_until, 117)
 
     def start_pursuit(self):
         self.pilot.role_identity = (self.t["sessionId"], 1, "Impostor")
@@ -314,23 +346,42 @@ class ImpostorTests(unittest.TestCase):
         self.assertIsNone(self.pilot.impostor.pending)
         self.assertEqual(self.pilot.impostor.kill_command, command["commandId"])
         self.assertFalse(any(e["event"] == "impostor_kill_confirmed" for e in self.bridge.history()["timeline"]))
-        self.t["impostorAction"] = {"commandId": command["commandId"], "state": "completed", "position": {"x": 3.7, "y": 0}}
+        self.t["impostorAction"] = {
+            "commandId": command["commandId"],
+            "state": "completed",
+            "position": {"x": 3.7, "y": 0},
+        }
         self.tick(103)
         self.assertEqual(self.pilot.impostor.phase, "escape")
 
     def test_slow_target_does_not_bypass_native_range(self):
         chase = self.start_pursuit()
         self.t["nearbyPlayers"][0].update(x=4, velocityX=0, velocityY=0)
-        b.atomic(self.bridge.nav_path, {"commandId": chase["commandId"], "state": "running",
-                 "pursuit": {"active": True, "targetSlowed": True, "targetSpeed": 0, "replans": 3}})
+        b.atomic(
+            self.bridge.nav_path,
+            {
+                "commandId": chase["commandId"],
+                "state": "running",
+                "pursuit": {"active": True, "targetSlowed": True, "targetSpeed": 0, "replans": 3},
+            },
+        )
         self.assertEqual(self.tick(102)["commandId"], chase["commandId"])
         self.assertIsNone(self.pilot.impostor.kill_command)
         self.assertTrue(self.pilot.impostor.status()["pursuit"]["targetSlowed"])
 
     def test_current_or_recent_witness_cancels_running_pursuit(self):
-        chase = self.start_pursuit()
-        self.t["recentPlayers"] = [{"playerId": 3, "playerName": "刚转过墙角", "x": 3, "y": 0,
-                                   "ageSeconds": 2, "uncertaintyRadius": 3, "presence": "last_seen_only"}]
+        self.start_pursuit()
+        self.t["recentPlayers"] = [
+            {
+                "playerId": 3,
+                "playerName": "刚转过墙角",
+                "x": 3,
+                "y": 0,
+                "ageSeconds": 2,
+                "uncertaintyRadius": 3,
+                "presence": "last_seen_only",
+            }
+        ]
         self.assertEqual(self.tick(102)["action"], "stop")
         self.assertIsNone(self.pilot.impostor.pending)
         self.assertIsNone(self.pilot.impostor.kill_command)
@@ -338,7 +389,8 @@ class ImpostorTests(unittest.TestCase):
     def test_recent_witness_blocks_ai_direct_kill_then_expires(self):
         self.t["recentPlayers"] = [{"playerId": 3, "x": 2, "y": 0, "ageSeconds": 2, "uncertaintyRadius": 3}]
         self.save()
-        with self.assertRaises(ValueError): self.bridge.kill(1, self.t["sessionId"], 1)
+        with self.assertRaises(ValueError):
+            self.bridge.kill(1, self.t["sessionId"], 1)
         self.assertFalse(self.bridge.command_path.exists())
         self.t["recentPlayers"][0]["ageSeconds"] = 10.1
         self.save()
@@ -348,7 +400,8 @@ class ImpostorTests(unittest.TestCase):
         self.t["nearbyPlayers"][0]["x"] = 5
         self.t["recentPlayers"] = [{"playerId": 3, "x": -5, "y": 0, "ageSeconds": 1, "uncertaintyRadius": 1.5}]
         self.save()
-        with self.assertRaises(ValueError): self.bridge.kill(1, self.t["sessionId"], 1)
+        with self.assertRaises(ValueError):
+            self.bridge.kill(1, self.t["sessionId"], 1)
 
     def test_pursuit_uses_live_player_id_without_nearest_task_anchor(self):
         self.t["nearbyPlayers"][0].update(x=4, y=4)
@@ -367,17 +420,24 @@ class ImpostorTests(unittest.TestCase):
     def test_pursuit_requires_new_component_and_rejects_historical_only_target(self):
         for change in ("old_component", "not_visible", "teammate", "witness"):
             old = copy.deepcopy(self.t)
-            if change == "old_component": self.t["ownRole"]["dynamicPursuitSupported"] = False
-            if change == "not_visible": self.t["nearbyPlayers"] = []
-            if change == "teammate": self.t["ownRole"]["teammateIds"].append(1)
-            if change == "witness": self.t["nearbyPlayers"].append({"playerId": 3, "x": 2, "y": 0})
+            if change == "old_component":
+                self.t["ownRole"]["dynamicPursuitSupported"] = False
+            if change == "not_visible":
+                self.t["nearbyPlayers"] = []
+            if change == "teammate":
+                self.t["ownRole"]["teammateIds"].append(1)
+            if change == "witness":
+                self.t["nearbyPlayers"].append({"playerId": 3, "x": 2, "y": 0})
             self.save()
-            with self.assertRaises(ValueError): self.bridge.pursue_player(1)
+            with self.assertRaises(ValueError):
+                self.bridge.pursue_player(1)
             self.assertFalse(self.bridge.command_path.exists())
             self.t = old
 
     def test_recent_memory_exposed_as_history_only_and_cleared_when_telemetry_stale(self):
-        self.t["recentPlayers"] = [{"playerId": 3, "x": 2, "y": 0, "ageSeconds": 1, "uncertaintyRadius": 1.5, "presence": "last_seen_only"}]
+        self.t["recentPlayers"] = [
+            {"playerId": 3, "x": 2, "y": 0, "ageSeconds": 1, "uncertaintyRadius": 1.5, "presence": "last_seen_only"}
+        ]
         self.save()
         state = self.bridge.read()
         self.assertEqual(state["recentPlayers"][0]["presence"], "last_seen_only")

@@ -1,11 +1,13 @@
 """Replay bounded forecasts, task-aware grouping, and safe pursuit handoffs."""
+
 import copy
 import importlib
 import math
 import os
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
+
 import test_impostor as fixture
 
 b = fixture.b
@@ -18,16 +20,26 @@ def person(pid, x, y=0, vx=1, vy=0):
 
 
 def task(tid=1, x=20, complete=False, step=0):
-    return {"taskId": tid, "taskType": "FixWiring", "locations": [{"x": x, "y": 0}],
-            "complete": complete, "step": step}
+    return {"taskId": tid, "taskType": "FixWiring", "locations": [{"x": x, "y": 0}], "complete": complete, "step": step}
 
 
 def observation():
-    return {"connected": True, "sessionId": "test", "matchId": 1, "mapId": "TheSkeld", "meetingId": 0,
-            "phase": "TASKS", "meetingOpen": False, "playerDetection": {"status": "ok"},
-            "self": {"playerId": 0, "position": {"x": 0, "y": 0}, "canMove": True},
-            "ownRole": {"roleType": "Crewmate"}, "tasks": [task()], "nearbyPlayers": [person(1, 7), person(2, 8)],
-            "history": {"taskBatch": 1}, "navigation": {}}
+    return {
+        "connected": True,
+        "sessionId": "test",
+        "matchId": 1,
+        "mapId": "TheSkeld",
+        "meetingId": 0,
+        "phase": "TASKS",
+        "meetingOpen": False,
+        "playerDetection": {"status": "ok"},
+        "self": {"playerId": 0, "position": {"x": 0, "y": 0}, "canMove": True},
+        "ownRole": {"roleType": "Crewmate"},
+        "tasks": [task()],
+        "nearbyPlayers": [person(1, 7), person(2, 8)],
+        "history": {"taskBatch": 1},
+        "navigation": {},
+    }
 
 
 class ForecastTests(unittest.TestCase):
@@ -112,9 +124,17 @@ class ForecastTests(unittest.TestCase):
         self.assertFalse(self.f.get(1, 102.1, [])["suspectedTaskStop"])
 
     def test_disconnect_meeting_death_detection_and_identity_clear_forecasts(self):
-        cases = [dict(connected=False), dict(meetingOpen=True), dict(phase="MEETING"),
-                 dict(ownRole={"isDead": True}), dict(playerDetection={"status": "camera_unavailable"}),
-                 dict(sessionId="next"), dict(matchId=2), dict(mapId="Other"), dict(meetingId=1)]
+        cases = [
+            dict(connected=False),
+            dict(meetingOpen=True),
+            dict(phase="MEETING"),
+            dict(ownRole={"isDead": True}),
+            dict(playerDetection={"status": "camera_unavailable"}),
+            dict(sessionId="next"),
+            dict(matchId=2),
+            dict(mapId="Other"),
+            dict(meetingId=1),
+        ]
         for changes in cases:
             with self.subTest(changes=changes):
                 self.setUp()
@@ -147,7 +167,7 @@ class ForecastTests(unittest.TestCase):
         stamp = datetime.now(timezone.utc)
         self.s["telemetryAt"] = stamp.isoformat()
         self.f.update(self.s, 100)
-        self.s["telemetryAt"] = (stamp - timedelta(seconds=.2)).isoformat()
+        self.s["telemetryAt"] = (stamp - timedelta(seconds=0.2)).isoformat()
         self.s["nearbyPlayers"][0]["x"] = -10
         self.f.update(self.s, 100.1)
         self.assertEqual(self.f.get(1, 100.1)["lastObservedPosition"]["x"], 5)
@@ -159,10 +179,12 @@ class CrewPolicyTests(unittest.TestCase):
         self.bridge.navigate.side_effect = lambda *_a, **_kw: {"commandId": "route"}
         self.c = social.CrewSocial(self.bridge)
         self.s = observation()
-        self.anchors = [{"anchorId": "group.door", "kind": "trace_waypoint", "position": {"x": 7.5, "y": 0}},
-                        {"anchorId": "other.task", "kind": "task", "position": {"x": 7, "y": 0}},
-                        {"anchorId": "other.task2", "kind": "task", "position": {"x": 8, "y": 0}},
-                        {"anchorId": "own.task", "kind": "task", "position": {"x": 20, "y": 0}}]
+        self.anchors = [
+            {"anchorId": "group.door", "kind": "trace_waypoint", "position": {"x": 7.5, "y": 0}},
+            {"anchorId": "other.task", "kind": "task", "position": {"x": 7, "y": 0}},
+            {"anchorId": "other.task2", "kind": "task", "position": {"x": 8, "y": 0}},
+            {"anchorId": "own.task", "kind": "task", "position": {"x": 20, "y": 0}},
+        ]
         self.serial = 0
 
     def observe(self, at):
@@ -349,8 +371,10 @@ class AutopilotPredictiveTests(unittest.TestCase):
         self.t["ownRole"] = {"roleType": "Crewmate", "isDead": False}
         self.t["nearbyPlayers"] = [person(1, 7), person(2, 8)] if players is None else players
         self.t["ui"]["ownTasks"] = [task()]
-        self.anchors = [{"anchorId": "own.task", "kind": "task", "position": {"x": 20, "y": 0}},
-                        {"anchorId": "group.door", "kind": "trace_waypoint", "position": {"x": 7.5, "y": 0}}]
+        self.anchors = [
+            {"anchorId": "own.task", "kind": "task", "position": {"x": 20, "y": 0}},
+            {"anchorId": "group.door", "kind": "trace_waypoint", "position": {"x": 7.5, "y": 0}},
+        ]
         b.atomic(self.bridge.root / "data/skeld-route-observations.json", {"anchors": self.anchors})
 
     def test_far_task_route_can_yield_to_new_group_but_open_minigame_cannot(self):
@@ -432,9 +456,12 @@ class AutopilotPredictiveTests(unittest.TestCase):
             with self.subTest(case=case):
                 self.setUp()
                 self.searching()
-                if case == "witness": self.t["recentPlayers"] = [{**person(3, 7), "ageSeconds": 1}]
-                if case == "detection": self.t["playerDetection"]["status"] = "camera_unavailable"
-                if case == "crime": self.t["crimeScenes"] = [{"x": 7, "y": 0, "avoidRadius": 3}]
+                if case == "witness":
+                    self.t["recentPlayers"] = [{**person(3, 7), "ageSeconds": 1}]
+                if case == "detection":
+                    self.t["playerDetection"]["status"] = "camera_unavailable"
+                if case == "crime":
+                    self.t["crimeScenes"] = [{"x": 7, "y": 0, "avoidRadius": 3}]
                 self.assertEqual(self.tick(101.3)["action"], "stop")
                 self.assertIsNone(self.pilot.impostor.search_plan)
 

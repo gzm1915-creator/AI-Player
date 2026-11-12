@@ -1,24 +1,31 @@
 """Completion can precede a practice refresh by less than one polling interval."""
+
 import copy
 import importlib
 import itertools
 import unittest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
+
 import test_action_memory as memory
-import test_studybot as skills
 import test_sample_task as sample
+import test_studybot as skills
 
 receipts = importlib.import_module("memory_fixture.task_receipts")
 batch_module = importlib.import_module("memory_fixture.task_batch")
 
 
 def fact(state, task, stamp=None):
-    return {"receiptId": task["taskInstanceId"], "sessionId": state["sessionId"],
-            "matchId": state["matchId"], "playerId": state["self"]["playerId"],
-            "completedAtUtc": stamp or state["telemetryAt"], "source": receipts.SOURCE,
-            "task": {**copy.deepcopy(task), "complete": True, "step": task.get("maxStep", 1)},
-            "position": {"x": 1, "y": 2}}
+    return {
+        "receiptId": task["taskInstanceId"],
+        "sessionId": state["sessionId"],
+        "matchId": state["matchId"],
+        "playerId": state["self"]["playerId"],
+        "completedAtUtc": stamp or state["telemetryAt"],
+        "source": receipts.SOURCE,
+        "task": {**copy.deepcopy(task), "complete": True, "step": task.get("maxStep", 1)},
+        "position": {"x": 1, "y": 2},
+    }
 
 
 class ReceiptMemoryTests(unittest.TestCase):
@@ -91,17 +98,32 @@ class ReceiptValidationTests(unittest.TestCase):
     def setUp(self):
         self.now = datetime.now(timezone.utc)
         self.task = {"taskId": 0, "taskType": "InspectSample", "taskInstanceId": "instance1"}
-        self.state = {"sessionId": "session", "matchId": 1, "self": {"playerId": 0}, "telemetryAt": self.now.isoformat()}
+        self.state = {
+            "sessionId": "session",
+            "matchId": 1,
+            "self": {"playerId": 0},
+            "telemetryAt": self.now.isoformat(),
+        }
         self.receipt = fact(self.state, self.task)
         self.state["taskCompletions"] = [self.receipt]
 
     def test_wrong_identity_incomplete_malformed_and_expired_facts_rejected(self):
         self.assertIsNotNone(receipts.receipt_for(self.state, self.task))
-        changes = ({"sessionId": "old"}, {"matchId": 2}, {"playerId": 7}, {"source": "clicked"}, {"source": []},
-                   {"matchId": True}, {"playerId": False},
-                   {"receiptId": "other"}, {"task": {}}, {"task": {**self.task, "complete": False}},
-                   {"completedAtUtc": "invalid"}, {"completedAtUtc": (self.now - timedelta(seconds=301)).isoformat()},
-                   {"completedAtUtc": (self.now + timedelta(seconds=2)).isoformat()})
+        changes = (
+            {"sessionId": "old"},
+            {"matchId": 2},
+            {"playerId": 7},
+            {"source": "clicked"},
+            {"source": []},
+            {"matchId": True},
+            {"playerId": False},
+            {"receiptId": "other"},
+            {"task": {}},
+            {"task": {**self.task, "complete": False}},
+            {"completedAtUtc": "invalid"},
+            {"completedAtUtc": (self.now - timedelta(seconds=301)).isoformat()},
+            {"completedAtUtc": (self.now + timedelta(seconds=2)).isoformat()},
+        )
         for change in changes:
             with self.subTest(change=change):
                 state = {**self.state, "taskCompletions": [{**self.receipt, **change}]}
@@ -131,8 +153,9 @@ class ReceiptSkillTests(unittest.TestCase):
     def test_batch_refresh_confirms_old_skill_without_closing_or_completing_new_task(self):
         self.state.update(self={"playerId": 0}, telemetryAt=datetime.now(timezone.utc).isoformat())
         task = self.state["tasks"][1]
-        task.update(taskType="InspectSample", taskInstanceId="sample1", maxStep=1,
-                    sample={"supported": True, "phase": "ready"})
+        task.update(
+            taskType="InspectSample", taskInstanceId="sample1", maxStep=1, sample={"supported": True, "phase": "ready"}
+        )
         self.runner.tick(self.state)
         receipt = fact(self.state, task)
         self.state.update(taskCompletions=[receipt], minigameOpen=False)
@@ -150,10 +173,12 @@ class ReceiptRunnerTests(unittest.TestCase):
     def setUpClass(cls):
         sample.SampleRunnerTests.setUpClass()
         cls.runner = sample.SampleRunnerTests.runner
+
     setUp = sample.SampleRunnerTests.setUp
 
     def test_window_close_or_task_disappearance_requires_native_fact(self):
         from PIL import Image, ImageDraw
+
         for native in (False, True):
             with self.subTest(native=native):
                 self.setUp()
@@ -164,19 +189,28 @@ class ReceiptRunnerTests(unittest.TestCase):
                 original = copy.deepcopy(task)
                 image = Image.new("RGB", (1920, 1080), (80, 120, 245))
                 ImageDraw.Draw(image).rectangle((952, 550, 974, 630), fill=(246, 134, 134))
+
                 def select(action, **fields):
                     self.t["ui"].update(minigameOpen=False, ownTasks=[])
                     if native:
-                        state = {"sessionId": self.t["sessionId"], "matchId": 1,
-                                 "self": self.t["localPlayer"], "telemetryAt": self.t["sentAtUtc"]}
+                        state = {
+                            "sessionId": self.t["sessionId"],
+                            "matchId": 1,
+                            "self": self.t["localPlayer"],
+                            "telemetryAt": self.t["sentAtUtc"],
+                        }
                         self.t["ui"]["taskCompletions"] = [fact(state, original)]
                     return True
-                ticks = itertools.count(0, .1)
-                with patch.object(self.runner, "read_latest_telemetry", side_effect=lambda: copy.deepcopy(self.t)), \
-                     patch.object(self.runner, "telemetry_indexed_points", return_value=None), \
-                     patch("PIL.ImageGrab.grab", return_value=image), patch.object(self.runner.time, "sleep"), \
-                     patch.object(self.runner.time, "monotonic", side_effect=lambda: next(ticks)), \
-                     patch.object(self.runner, "send_plugin_action", side_effect=select):
+
+                ticks = itertools.count(0, 0.1)
+                with (
+                    patch.object(self.runner, "read_latest_telemetry", side_effect=lambda: copy.deepcopy(self.t)),
+                    patch.object(self.runner, "telemetry_indexed_points", return_value=None),
+                    patch("PIL.ImageGrab.grab", return_value=image),
+                    patch.object(self.runner.time, "sleep"),
+                    patch.object(self.runner.time, "monotonic", side_effect=lambda: next(ticks)),
+                    patch.object(self.runner, "send_plugin_action", side_effect=select),
+                ):
                     if native:
                         self.runner.solve_inspect_sample(self.pointer, 7, 0)
                     else:

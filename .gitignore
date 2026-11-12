@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+vendor/
+store.db
+dist/
+build/
+*.neko-plugin
+*.neko-bundle
+*.dll
+*.exe
+connection.json
+history/

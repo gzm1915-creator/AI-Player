@@ -1,9 +1,11 @@
 """Synthetic voting decisions: no model requests or real game actions."""
+
 import json
 import time
-from datetime import datetime, timezone, timedelta
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
+
 import test_bridge as fixture
 
 b = fixture.b
@@ -16,11 +18,20 @@ class VotingTests(unittest.TestCase):
 
     def setUp(self):
         fixture.BridgeTests.setUp(self)
-        self.m["voting"] = {"supported": True, "phase": "NotVoted", "votingOpen": True,
-            "localAlive": True, "hasVoted": False, "canVote": True, "state": "not_submitted",
-            "candidates": [{"playerId": 0, "playerName": "自己", "eligible": True},
-                           {"playerId": 1, "playerName": "小红", "eligible": True},
-                           {"playerId": 2, "playerName": "断线", "eligible": False}]}
+        self.m["voting"] = {
+            "supported": True,
+            "phase": "NotVoted",
+            "votingOpen": True,
+            "localAlive": True,
+            "hasVoted": False,
+            "canVote": True,
+            "state": "not_submitted",
+            "candidates": [
+                {"playerId": 0, "playerName": "自己", "eligible": True},
+                {"playerId": 1, "playerName": "小红", "eligible": True},
+                {"playerId": 2, "playerName": "断线", "eligible": False},
+            ],
+        }
         b.atomic(self.bridge.control_path, {"meetingControl": True})
         self.save()
         self.calls = []
@@ -53,7 +64,13 @@ class VotingTests(unittest.TestCase):
         self.assertEqual(self.payload()["meetingDecision"]["meetingId"], 2)
 
     def test_no_wakeup_for_discussion_dead_recorded_or_missing_snapshot(self):
-        for changes in ({"votingOpen": False}, {"localAlive": False}, {"hasVoted": True}, {"supported": False}, {"canVote": False}):
+        for changes in (
+            {"votingOpen": False},
+            {"localAlive": False},
+            {"hasVoted": True},
+            {"supported": False},
+            {"canVote": False},
+        ):
             with self.subTest(changes=changes):
                 original = dict(self.m["voting"])
                 self.m["voting"].update(changes)
@@ -101,6 +118,7 @@ class VotingTests(unittest.TestCase):
     def test_push_failure_does_not_consume_reminder(self):
         def fail(**_):
             raise ConnectionError("synthetic host disconnect")
+
         self.monitor.push = fail
         with self.assertRaises(ConnectionError):
             self.monitor.tick()
@@ -135,7 +153,10 @@ class VotingTests(unittest.TestCase):
 
     def test_command_completion_alone_cannot_confirm_vote(self):
         sent = self.bridge.vote(1, self.session, 1)
-        b.atomic(self.bridge.nav_path, {"commandId": sent["commandId"], "state": "completed", "completionMode": "vote_submitted"})
+        b.atomic(
+            self.bridge.nav_path,
+            {"commandId": sent["commandId"], "state": "completed", "completionMode": "vote_submitted"},
+        )
         self.bridge.pending_vote["submitted"] -= 6
         voting = self.bridge.read()["voting"]
         self.assertEqual(voting["state"], "unconfirmed")
@@ -143,14 +164,23 @@ class VotingTests(unittest.TestCase):
 
     def test_failed_or_unconfirmed_vote_can_be_reconsidered(self):
         sent = self.bridge.vote(1, self.session, 1)
-        b.atomic(self.bridge.nav_path, {"commandId": sent["commandId"], "state": "vote_cast_failed", "error": "test refusal"})
+        b.atomic(
+            self.bridge.nav_path, {"commandId": sent["commandId"], "state": "vote_cast_failed", "error": "test refusal"}
+        )
         self.assertEqual(self.bridge.read()["voting"]["state"], "failed")
         self.bridge.last_command_at = 0
         self.assertNotEqual(self.bridge.vote(-1, self.session, 1)["commandId"], sent["commandId"])
 
     def test_stale_ids_dead_disconnected_candidates_and_invalid_types_rejected(self):
-        for target, session, meeting in [(1, "old", 1), (1, self.session, 0), (2, self.session, 1),
-                (True, self.session, 1), (1, self.session, True), (255, self.session, 1), (-2, self.session, 1)]:
+        for target, session, meeting in [
+            (1, "old", 1),
+            (1, self.session, 0),
+            (2, self.session, 1),
+            (True, self.session, 1),
+            (1, self.session, True),
+            (255, self.session, 1),
+            (-2, self.session, 1),
+        ]:
             with self.subTest(target=target, session=session, meeting=meeting), self.assertRaises(ValueError):
                 self.bridge.vote(target, session, meeting)
         self.assertFalse(self.bridge.command_path.exists())

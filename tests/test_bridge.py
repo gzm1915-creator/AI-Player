@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import importlib.util
 import json
 import sys
@@ -6,12 +7,11 @@ import tempfile
 import time
 import types
 import unittest
-import copy
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-PLUGIN = Path(__file__).resolve().parents[1] / "plugin/among_us_neko"
+PLUGIN = Path(__file__).resolve().parents[1]
 test_package = types.ModuleType("among_us_test")
 test_package.__path__ = [str(PLUGIN)]
 sys.modules["among_us_test"] = test_package
@@ -29,7 +29,14 @@ class BridgeTests(unittest.TestCase):
         self.root.mkdir(parents=True)
         self.bridge = b.Bridge(self.game)
         self.session = "12345678-1234-1234-1234-123456789012"
-        self.t = {"sentAtUtc": self.now(), "sessionId": self.session, "game": {"phase": "MEETING", "mapId": "TheSkeld"}, "ui": {"meetingOpen": True}, "localPlayer": {"playerId": 0, "canMove": True}, "nearbyPlayers": [{"playerId": 1, "playerName": "小红", "x": 1, "y": 2}]}
+        self.t = {
+            "sentAtUtc": self.now(),
+            "sessionId": self.session,
+            "game": {"phase": "MEETING", "mapId": "TheSkeld"},
+            "ui": {"meetingOpen": True},
+            "localPlayer": {"playerId": 0, "canMove": True},
+            "nearbyPlayers": [{"playerId": 1, "playerName": "小红", "x": 1, "y": 2}],
+        }
         self.m = {"updatedAtUtc": self.now(), "meetingSequence": 1, "meetingOpen": True, "voteGate": {"ready": True}}
         self.save()
 
@@ -93,7 +100,7 @@ class BridgeTests(unittest.TestCase):
     def test_reconnect_overrides_stale_dialogue_with_fresh_facts(self):
         self.t["game"]["phase"] = "TASKS"
         self.t["ui"]["meetingOpen"] = False
-        self.t["localPlayer"]["position"] = {"space": "unity_world", "x": 8.32, "y": .84}
+        self.t["localPlayer"]["position"] = {"space": "unity_world", "x": 8.32, "y": 0.84}
         self.save()
         calls = []
         monitor = b.Monitor(self.bridge, lambda **kw: calls.append(kw))
@@ -140,7 +147,9 @@ class BridgeTests(unittest.TestCase):
         monitor = b.Monitor(self.bridge, lambda **kwargs: calls.append(kwargs))
         monitor.tick()
         self.assertEqual(calls[-1]["ai_behavior"], "read")
-        self.chat([{"event": "chat", "index": 1, "speakerId": 0, "speaker": "Neko", "text": "自己", "isLocalPlayer": True}])
+        self.chat(
+            [{"event": "chat", "index": 1, "speakerId": 0, "speaker": "Neko", "text": "自己", "isLocalPlayer": True}]
+        )
         monitor.last_push = monitor.last_response = 0
         monitor.tick()
         self.assertEqual(calls[-1]["ai_behavior"], "read")
@@ -149,7 +158,18 @@ class BridgeTests(unittest.TestCase):
         calls = []
         monitor = b.Monitor(self.bridge, lambda **kwargs: calls.append(kwargs))
         monitor.tick()
-        self.chat([{"event": "chat", "index": 1, "speakerId": 1, "speaker": "小红", "text": "你在哪里", "isLocalPlayer": False}])
+        self.chat(
+            [
+                {
+                    "event": "chat",
+                    "index": 1,
+                    "speakerId": 1,
+                    "speaker": "小红",
+                    "text": "你在哪里",
+                    "isLocalPlayer": False,
+                }
+            ]
+        )
         monitor.last_response = time.monotonic()  # A preceding reply is still cooling down.
         monitor.tick()
         self.assertEqual(len(calls), 1)
@@ -165,7 +185,10 @@ class BridgeTests(unittest.TestCase):
         self.t["game"]["phase"] = "TASKS"
         self.t["ui"]["meetingOpen"] = False
         self.save()
-        b.atomic(self.root / "data/skeld-route-observations.json", {"anchors": [{"anchorId": "cafeteria.test", "roomId": "Cafeteria"}]})
+        b.atomic(
+            self.root / "data/skeld-route-observations.json",
+            {"anchors": [{"anchorId": "cafeteria.test", "roomId": "Cafeteria"}]},
+        )
         self.bridge.navigate("cafeteria.test")
         command = b.load(self.bridge.command_path)
         self.assertEqual(command["action"], "navigate")
@@ -176,7 +199,10 @@ class BridgeTests(unittest.TestCase):
         self.t["game"]["phase"] = "TASKS"
         self.t["ui"]["meetingOpen"] = False
         self.save()
-        b.atomic(self.root / "data/skeld-route-observations.json", {"anchors": [{"anchorId": "cafeteria.task", "roomId": "Cafeteria"}]})
+        b.atomic(
+            self.root / "data/skeld-route-observations.json",
+            {"anchors": [{"anchorId": "cafeteria.task", "roomId": "Cafeteria"}]},
+        )
         self.bridge.navigate("cafeteria.task", {"x": 2.25, "y": -1.5})
         command = b.load(self.bridge.command_path)
         self.assertTrue(command["interactAfterArrival"])
@@ -194,11 +220,13 @@ class BridgeTests(unittest.TestCase):
     def test_plugin_facade_loads_with_documented_sdk_shape(self):
         # This is a contract fixture, not a claim to run N.E.K.O.'s real SDK.
         sdk = types.ModuleType("plugin.sdk.plugin")
+
         class Base:
             def __init__(self, ctx):
                 self.config = ctx.config
                 self.push_message = ctx.push_message
                 self.data_path = lambda: ctx.data_path
+
         sdk.NekoPluginBase = Base
         sdk.neko_plugin = lambda cls: cls
         sdk.Ok = lambda value: value
@@ -208,12 +236,22 @@ class BridgeTests(unittest.TestCase):
         package = types.ModuleType("among_us_neko_fixture")
         package.__path__ = [str(PLUGIN)]
         with patch.dict(sys.modules, {"plugin.sdk.plugin": sdk, "among_us_neko_fixture": package}):
-            fspec = importlib.util.spec_from_file_location("among_us_neko_fixture", PLUGIN / "__init__.py", submodule_search_locations=[str(PLUGIN)])
+            fspec = importlib.util.spec_from_file_location(
+                "among_us_neko_fixture", PLUGIN / "__init__.py", submodule_search_locations=[str(PLUGIN)]
+            )
             mod = importlib.util.module_from_spec(fspec)
             fspec.loader.exec_module(mod)
+
             async def config_dump(**_):
                 return {"among_us": {"game_dir": str(self.game)}}
-            obj = mod.AmongUsNekoPlugin(types.SimpleNamespace(config=types.SimpleNamespace(dump=config_dump), push_message=lambda **_: None, data_path=Path(self.tmp.name) / "private"))
+
+            obj = mod.AmongUsNekoPlugin(
+                types.SimpleNamespace(
+                    config=types.SimpleNamespace(dump=config_dump),
+                    push_message=lambda **_: None,
+                    data_path=Path(self.tmp.name) / "private",
+                )
+            )
             asyncio.run(obj.startup())
             self.addCleanup(obj.shutdown)
             state = asyncio.run(obj.among_us_state())
@@ -254,23 +292,33 @@ class BridgeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 asyncio.run(obj.control(operation="history_clear_all", ui_token="wrong-token"))
             with self.assertRaises(ValueError):
-                asyncio.run(obj.control(operation="history_clear_current", ui_token=obj.ui_token, history_record_id="previous-record"))
+                asyncio.run(
+                    obj.control(
+                        operation="history_clear_current", ui_token=obj.ui_token, history_record_id="previous-record"
+                    )
+                )
             asyncio.run(obj.control(operation="history_pause", ui_token=obj.ui_token))
             self.assertFalse(b.load(obj._settings_path())["history_enabled"])
             self.assertEqual(asyncio.run(obj.among_us_history())["lastSeenPlayers"], [])
             asyncio.run(obj.control(operation="history_resume", ui_token=obj.ui_token))
-            result = asyncio.run(obj.control(operation="history_clear_current", ui_token=obj.ui_token, history_record_id=record_id))
+            result = asyncio.run(
+                obj.control(operation="history_clear_current", ui_token=obj.ui_token, history_record_id=record_id)
+            )
             self.assertEqual(result["scope"], "displayed_match")
             self.assertNotEqual(obj.bridge.journal.doc["recordId"], record_id)
 
     def test_failed_push_retries_meeting_event(self):
-        self.chat([{"event": "chat", "index": 1, "speakerId": 1, "speaker": "小红", "text": "你好", "isLocalPlayer": False}])
+        self.chat(
+            [{"event": "chat", "index": 1, "speakerId": 1, "speaker": "小红", "text": "你好", "isLocalPlayer": False}]
+        )
         calls = []
+
         def push(**kwargs):
             if not calls:
                 calls.append("failed")
                 raise ConnectionError("host temporarily disconnected")
             calls.append(kwargs)
+
         monitor = b.Monitor(self.bridge, push)
         with self.assertRaises(ConnectionError):
             monitor.tick()
@@ -307,10 +355,12 @@ class BridgeTests(unittest.TestCase):
 
     def test_background_recovers_from_push_exception(self):
         calls = []
+
         def push(**kwargs):
             calls.append(kwargs)
             if len(calls) == 1:
                 raise ConnectionError("test disconnect")
+
         monitor = b.Monitor(self.bridge, push)
         monitor.start()
         try:
@@ -354,8 +404,7 @@ class BridgeTests(unittest.TestCase):
         monitor = b.Monitor(self.bridge, lambda **kw: calls.append(kw))
         monitor.tick()
         for pid, name in enumerate(("假人一", "假人二", "假人三"), 1):
-            self.t["nearbyPlayers"] = [{"playerId": pid, "playerName": name,
-                "colorName": "红", "x": pid, "y": 2}]
+            self.t["nearbyPlayers"] = [{"playerId": pid, "playerName": name, "colorName": "红", "x": pid, "y": 2}]
             self.t["playerDetection"] = {"status": "ok", "cameraName": "World", "visible": 1}
             self.t["sentAtUtc"] = self.now()
             self.save()
@@ -379,22 +428,42 @@ class BridgeTests(unittest.TestCase):
 
     def test_task_evidence_and_meeting_route_are_not_confused(self):
         from among_us_test.journal import Journal
+
         journal = Journal(Path(self.tmp.name) / "journal-test")
-        base = {"connected": True, "phase": "TASKS", "sessionId": self.session, "matchId": 1,
-                "mapId": "TheSkeld", "self": {"position": {"x": 0, "y": 0}}, "nearbyPlayers": [],
-                "tasks": [{"taskId": 1, "taskType": "FixWiring", "step": 0, "complete": False}]}
+        base = {
+            "connected": True,
+            "phase": "TASKS",
+            "sessionId": self.session,
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "self": {"position": {"x": 0, "y": 0}},
+            "nearbyPlayers": [],
+            "tasks": [{"taskId": 1, "taskType": "FixWiring", "step": 0, "complete": False}],
+        }
+
         def observe(t, **patches):
-            state = {**copy.deepcopy(base), **patches, "telemetryAt": (datetime.now(timezone.utc) - timedelta(seconds=100-t)).isoformat()}
+            state = {
+                **copy.deepcopy(base),
+                **patches,
+                "telemetryAt": (datetime.now(timezone.utc) - timedelta(seconds=100 - t)).isoformat(),
+            }
             journal.observe(state)
+
         observe(0)
         observe(1, self={"position": {"x": 1, "y": 0}})
         observe(2, tasks=[{"taskId": 1, "taskType": "FixWiring", "step": 1, "complete": False}])
         observe(3, tasks=[])  # Missing is not complete.
         observe(4, tasks=[{"taskId": 1, "taskType": "FixWiring", "step": 3, "complete": True}])
         observe(5, phase="MEETING", self={"position": {"x": 100, "y": 0}})
-        observe(6, self={"position": {"x": 100, "y": 0}}, tasks=[{"taskId": 1, "taskType": "FixWiring", "step": 3, "complete": True}])
+        observe(
+            6,
+            self={"position": {"x": 100, "y": 0}},
+            tasks=[{"taskId": 1, "taskType": "FixWiring", "step": 3, "complete": True}],
+        )
         history = journal.query()
-        self.assertEqual([e["event"] for e in history["taskEvents"]], ["task_first_observed", "task_progress", "task_completed"])
+        self.assertEqual(
+            [e["event"] for e in history["taskEvents"]], ["task_first_observed", "task_progress", "task_completed"]
+        )
         self.assertLess(history["distance"], 10)  # Meeting teleport never counts as walking.
         self.assertTrue(history["route"][-1]["segmentStart"])
         previous_count = history["routePointCount"]
@@ -430,7 +499,10 @@ class BridgeTests(unittest.TestCase):
     def test_task_history_update_waits_only_for_short_coalescing_window_and_is_silent(self):
         self.t["game"]["phase"] = "TASKS"
         self.t["localPlayer"]["position"] = {"space": "unity_world", "x": 0, "y": 0}
-        self.t["ui"].update(meetingOpen=False, ownTasks=[{"taskId": 1, "taskType": "FixWiring", "step": 0, "maxStep": 3, "complete": False}])
+        self.t["ui"].update(
+            meetingOpen=False,
+            ownTasks=[{"taskId": 1, "taskType": "FixWiring", "step": 0, "maxStep": 3, "complete": False}],
+        )
         self.t["nearbyPlayers"] = []
         self.save()
         calls = []
@@ -441,7 +513,7 @@ class BridgeTests(unittest.TestCase):
         self.save()
         monitor.tick()  # Event is retained during the 0.5s coalescing window.
         self.assertEqual(len(calls), 1)
-        with patch.object(b.time, "monotonic", return_value=monitor.last_push + .6):
+        with patch.object(b.time, "monotonic", return_value=monitor.last_push + 0.6):
             monitor.tick()
         self.assertEqual(len(calls), 2)
         self.assertEqual(calls[-1]["ai_behavior"], "read")
@@ -481,8 +553,10 @@ class BridgeTests(unittest.TestCase):
 
     def test_far_anchor_does_not_claim_a_room(self):
         self.t["localPlayer"]["position"] = {"space": "unity_world", "x": 50.0, "y": 50.0}
-        b.atomic(self.root / "data/skeld-route-observations.json", {"anchors": [
-            {"anchorId": "cafeteria", "roomId": "Cafeteria", "position": {"x": 0.0, "y": 0.0}}]})
+        b.atomic(
+            self.root / "data/skeld-route-observations.json",
+            {"anchors": [{"anchorId": "cafeteria", "roomId": "Cafeteria", "position": {"x": 0.0, "y": 0.0}}]},
+        )
         self.save()
         state = self.bridge.read()
         self.assertIsNone(state["location"]["areaEstimate"])
@@ -520,11 +594,13 @@ class BridgeTests(unittest.TestCase):
         self.t["nearbyPlayers"] = []
         calls = []
         monitor = b.Monitor(self.bridge, lambda **kw: calls.append(kw))
+
         def tick(at, x):
             self.t["localPlayer"]["position"]["x"] = x
             self.save()
             with patch("among_us_test.bridge.time.monotonic", return_value=at):
                 monitor.tick()
+
         tick(100, 0)
         tick(101, 0.3)
         tick(102, 0.6)
@@ -544,11 +620,13 @@ class BridgeTests(unittest.TestCase):
         self.t["nearbyPlayers"] = []
         calls = []
         monitor = b.Monitor(self.bridge, lambda **kw: calls.append(kw))
+
         def tick(at, players):
             self.t["nearbyPlayers"] = players
             self.save()
             with patch("among_us_test.bridge.time.monotonic", return_value=at):
                 monitor.tick()
+
         tick(100, [])
         tick(101, [{"playerId": 6, "x": 1.0, "y": 0.0}])
         tick(102, [{"playerId": 6, "x": 1.4, "y": 0.0}])
@@ -566,19 +644,26 @@ class BridgeTests(unittest.TestCase):
 
     def test_autopilot_selects_only_owned_incomplete_task_anchor(self):
         from among_us_test.autopilot import Autopilot
+
         self.t["game"]["phase"] = "TASKS"
         self.t["ui"]["meetingOpen"] = False
         self.t["localPlayer"]["position"] = {"x": 0, "y": 0}
-        self.t["ui"]["ownTasks"] = [{"taskId": 3, "taskType": "FixWiring", "complete": False,
-                                      "locations": [{"x": 5, "y": 0}]}]
+        self.t["ui"]["ownTasks"] = [
+            {"taskId": 3, "taskType": "FixWiring", "complete": False, "locations": [{"x": 5, "y": 0}]}
+        ]
         self.save()
-        anchors = [{"anchorId": "not-a-task", "kind": "waypoint", "position": {"x": 1, "y": 0}},
-                   {"anchorId": "task-a", "kind": "task", "position": {"x": 5.1, "y": 0}},
-                   {"anchorId": "task-b", "kind": "task", "position": {"x": 9, "y": 0}}]
+        anchors = [
+            {"anchorId": "not-a-task", "kind": "waypoint", "position": {"x": 1, "y": 0}},
+            {"anchorId": "task-a", "kind": "task", "position": {"x": 5.1, "y": 0}},
+            {"anchorId": "task-b", "kind": "task", "position": {"x": 9, "y": 0}},
+        ]
         self.bridge.route_anchors = lambda: anchors
         self.bridge.anchors = lambda: [{"anchorId": a["anchorId"]} for a in anchors]
         submitted = []
-        self.bridge.navigate = lambda target, position=None: submitted.append((target, position)) or {"commandId": "auto-1", "status": "submitted"}
+        self.bridge.navigate = lambda target, position=None: submitted.append((target, position)) or {
+            "commandId": "auto-1",
+            "status": "submitted",
+        }
         self.bridge.set_runtime("autoNavigation", True)
         pilot = Autopilot(self.bridge)
         pilot.set_enabled(True)
@@ -586,7 +671,7 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(pilot.target, "task-a")
         self.assertEqual(submitted[0], ("task-a", {"x": 5, "y": 0, "taskId": 3}))
         self.assertEqual(pilot.state, "submitted")
-        with patch('among_us_test.autopilot.time.monotonic', return_value=pilot.submitted_at + 6):
+        with patch("among_us_test.autopilot.time.monotonic", return_value=pilot.submitted_at + 6):
             pilot.tick(self.bridge.read())
         self.assertTrue(pilot.enabled)
         self.assertIsNone(pilot.pending)
@@ -595,35 +680,53 @@ class BridgeTests(unittest.TestCase):
 
     def test_autopilot_completes_target_and_does_not_repeat_it(self):
         from among_us_test.autopilot import Autopilot
-        bridge = types.SimpleNamespace(route_anchors=lambda: [{"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}}, {"anchorId": "b", "kind": "task", "position": {"x": 9, "y": 0}}], navigate=lambda target, position=None: {"commandId": target + "-cmd"})
+
+        bridge = types.SimpleNamespace(
+            route_anchors=lambda: [
+                {"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}},
+                {"anchorId": "b", "kind": "task", "position": {"x": 9, "y": 0}},
+            ],
+            navigate=lambda target, position=None: {"commandId": target + "-cmd"},
+        )
         pilot = Autopilot(bridge)
         pilot.set_enabled(True)
-        state = {"connected": True, "sessionId": self.session, "matchId": 1, "mapId": "TheSkeld", "phase": "TASKS", "self": {"canMove": True, "position": {"x": 0, "y": 0}}, "tasks": [{"complete": False, "locations": [{"x": 1, "y": 0}, {"x": 9, "y": 0}]}], "navigation": {"state": "idle"}}
-        with patch('among_us_test.autopilot.time.monotonic', return_value=100):
+        state = {
+            "connected": True,
+            "sessionId": self.session,
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "phase": "TASKS",
+            "self": {"canMove": True, "position": {"x": 0, "y": 0}},
+            "tasks": [{"complete": False, "locations": [{"x": 1, "y": 0}, {"x": 9, "y": 0}]}],
+            "navigation": {"state": "idle"},
+        }
+        with patch("among_us_test.autopilot.time.monotonic", return_value=100):
             pilot.tick(state)
         self.assertEqual(pilot.target, "a")
         state["navigation"] = {"commandId": "a-cmd", "state": "running"}
-        with patch('among_us_test.autopilot.time.monotonic', return_value=101):
+        with patch("among_us_test.autopilot.time.monotonic", return_value=101):
             pilot.tick(state)
         self.assertEqual(pilot.state, "moving")
         state["navigation"]["state"] = "completed"
-        with patch('among_us_test.autopilot.time.monotonic', return_value=102):
+        with patch("among_us_test.autopilot.time.monotonic", return_value=102):
             pilot.tick(state)
-        with patch('among_us_test.autopilot.time.monotonic', return_value=106):
+        with patch("among_us_test.autopilot.time.monotonic", return_value=106):
             pilot.tick(state)
         self.assertEqual(pilot.target, "b")
         pilot.set_enabled(False)
-        with patch('among_us_test.autopilot.time.monotonic', return_value=200):
+        with patch("among_us_test.autopilot.time.monotonic", return_value=200):
             pilot.tick(state)
         self.assertIsNone(pilot.pending)
 
     def test_autopilot_waits_for_meeting_and_stops_after_unconfirmed_command(self):
         from among_us_test.autopilot import Autopilot
+
         self.t["game"]["phase"] = "TASKS"
         self.t["ui"]["meetingOpen"] = False
         self.t["localPlayer"]["position"] = {"x": 0, "y": 0}
-        self.t["ui"]["ownTasks"] = [{"taskId": 1, "taskType": "FixWiring", "complete": False,
-                                      "locations": [{"x": 1, "y": 0}]}]
+        self.t["ui"]["ownTasks"] = [
+            {"taskId": 1, "taskType": "FixWiring", "complete": False, "locations": [{"x": 1, "y": 0}]}
+        ]
         self.save()
         pilot = Autopilot(self.bridge)
         pilot.set_enabled(True)
@@ -657,20 +760,34 @@ class BridgeTests(unittest.TestCase):
 
     def test_autopilot_retries_unfinished_task_instead_of_blacklisting_arrival(self):
         from among_us_test.autopilot import Autopilot
+
         calls = []
-        bridge = types.SimpleNamespace(route_anchors=lambda: [{"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}}],
-            navigate=lambda target, position=None: calls.append(target) or {"commandId": "cmd"})
+        bridge = types.SimpleNamespace(
+            route_anchors=lambda: [{"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}}],
+            navigate=lambda target, position=None: calls.append(target) or {"commandId": "cmd"},
+        )
         pilot = Autopilot(bridge)
         pilot.set_enabled(True)
-        state = {"connected": True, "sessionId": self.session, "matchId": 1, "mapId": "TheSkeld", "phase": "TASKS",
-                 "self": {"canMove": True, "position": {"x": 0, "y": 0}}, "navigation": {"state": "idle"},
-                 "tasks": [{"taskId": 1, "step": 0, "complete": False, "locations": [{"x": 1, "y": 0}]}]}
-        with patch('among_us_test.autopilot.time.monotonic', return_value=100): pilot.tick(state)
+        state = {
+            "connected": True,
+            "sessionId": self.session,
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "phase": "TASKS",
+            "self": {"canMove": True, "position": {"x": 0, "y": 0}},
+            "navigation": {"state": "idle"},
+            "tasks": [{"taskId": 1, "step": 0, "complete": False, "locations": [{"x": 1, "y": 0}]}],
+        }
+        with patch("among_us_test.autopilot.time.monotonic", return_value=100):
+            pilot.tick(state)
         state["navigation"] = {"commandId": "cmd", "state": "completed"}
-        with patch('among_us_test.autopilot.time.monotonic', return_value=101): pilot.tick(state)
-        with patch('among_us_test.autopilot.time.monotonic', return_value=110): pilot.tick(state)
+        with patch("among_us_test.autopilot.time.monotonic", return_value=101):
+            pilot.tick(state)
+        with patch("among_us_test.autopilot.time.monotonic", return_value=110):
+            pilot.tick(state)
         self.assertEqual(calls, ["a"])
-        with patch('among_us_test.autopilot.time.monotonic', return_value=132): pilot.tick(state)
+        with patch("among_us_test.autopilot.time.monotonic", return_value=132):
+            pilot.tick(state)
         self.assertEqual(calls, ["a", "a"])
 
     def test_manual_task_anchor_also_opens_only_a_matching_owned_task(self):
@@ -678,8 +795,10 @@ class BridgeTests(unittest.TestCase):
         self.t["ui"]["meetingOpen"] = False
         self.t["ui"]["ownTasks"] = [{"taskId": 7, "complete": False, "locations": [{"x": 2, "y": 3}]}]
         self.save()
-        b.atomic(self.root / "data/skeld-route-observations.json", {"anchors": [
-            {"anchorId": "task", "kind": "task", "position": {"x": 2.1, "y": 3}}]})
+        b.atomic(
+            self.root / "data/skeld-route-observations.json",
+            {"anchors": [{"anchorId": "task", "kind": "task", "position": {"x": 2.1, "y": 3}}]},
+        )
         self.bridge.navigate("task")
         command = b.load(self.bridge.command_path)
         self.assertTrue(command["interactAfterArrival"])
@@ -687,14 +806,25 @@ class BridgeTests(unittest.TestCase):
 
     def test_failed_minigame_stage_is_skipped_at_limit_but_next_stage_is_allowed(self):
         from among_us_test.autopilot import Autopilot
+
         calls = []
-        bridge = types.SimpleNamespace(route_anchors=lambda: [{"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}}],
-            navigate=lambda target, position=None: calls.append(target) or {"commandId": "cmd"})
-        pilot = Autopilot(bridge); pilot.set_enabled(True)
-        state = {"connected": True, "sessionId": self.session, "matchId": 1, "mapId": "TheSkeld", "phase": "TASKS",
-                 "self": {"canMove": True, "position": {"x": 0, "y": 0}}, "navigation": {"state": "idle"},
-                 "tasks": [{"taskId": 1, "step": 0, "complete": False, "locations": [{"x": 1, "y": 0}]}],
-                 "runtimeStatus": {"minigameAutomation": {"taskId": 1, "initialStep": 0, "state": "failed", "attempts": 3}}}
+        bridge = types.SimpleNamespace(
+            route_anchors=lambda: [{"anchorId": "a", "kind": "task", "position": {"x": 1, "y": 0}}],
+            navigate=lambda target, position=None: calls.append(target) or {"commandId": "cmd"},
+        )
+        pilot = Autopilot(bridge)
+        pilot.set_enabled(True)
+        state = {
+            "connected": True,
+            "sessionId": self.session,
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "phase": "TASKS",
+            "self": {"canMove": True, "position": {"x": 0, "y": 0}},
+            "navigation": {"state": "idle"},
+            "tasks": [{"taskId": 1, "step": 0, "complete": False, "locations": [{"x": 1, "y": 0}]}],
+            "runtimeStatus": {"minigameAutomation": {"taskId": 1, "initialStep": 0, "state": "failed", "attempts": 3}},
+        }
         pilot.tick(state)
         self.assertEqual(calls, [])
         state["tasks"][0]["step"] = 1

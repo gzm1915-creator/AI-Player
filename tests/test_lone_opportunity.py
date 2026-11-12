@@ -1,6 +1,8 @@
 """Replay missed single-player opportunities and local patrol starvation."""
+
 import unittest
 from unittest.mock import patch
+
 import test_impostor as fixture
 import test_room_sweep as circuit_fixture
 
@@ -15,8 +17,12 @@ class LoneOpportunityTests(unittest.TestCase):
 
     def target(self):
         self.t["nearbyPlayers"] = [{"playerId": 1, "x": 6, "y": 0}]
-        self.t["ownRole"].update(canKill=False, killTargetId=None,
-            killSafetySupported=True, killSafety=[{"targetPlayerId": 1, "ready": False}])
+        self.t["ownRole"].update(
+            canKill=False,
+            killTargetId=None,
+            killSafetySupported=True,
+            killSafety=[{"targetPlayerId": 1, "ready": False}],
+        )
 
     def test_first_sighting_approaches_before_opening_fake_task(self):
         self.target()
@@ -43,8 +49,7 @@ class LoneOpportunityTests(unittest.TestCase):
         self.assertEqual(self.tick(103)["commandId"], chase["commandId"])
         self.t["ownRole"]["killSafety"][0]["ready"] = True
         self.assertEqual(self.tick(104)["action"], "impostor_kill")
-        self.assertFalse(any(e["event"] == "impostor_kill_confirmed"
-                             for e in self.bridge.history()["timeline"]))
+        self.assertFalse(any(e["event"] == "impostor_kill_confirmed" for e in self.bridge.history()["timeline"]))
 
     def test_cover_hold_yields_to_approach_without_restarting_its_timer(self):
         self.t["nearbyPlayers"] = []
@@ -61,8 +66,7 @@ class LoneOpportunityTests(unittest.TestCase):
         self.tick(100)
         self.ack("running")
         self.t["nearbyPlayers"].append({"playerId": 3, "x": 5, "y": 0})
-        self.t["ownRole"].update(canKill=True, killTargetId=1,
-            killSafety=[{"targetPlayerId": 1, "ready": True}])
+        self.t["ownRole"].update(canKill=True, killTargetId=1, killSafety=[{"targetPlayerId": 1, "ready": True}])
         self.assertEqual(self.tick(101)["action"], "stop")
         self.assertIsNone(self.pilot.impostor.kill_command)
 
@@ -116,7 +120,7 @@ class GlobalRoomCoverageTests(unittest.TestCase):
         for i, room in enumerate(rooms):
             if room in rooms[:i]:
                 previous = max(j for j in range(i) if rooms[j] == room)
-                self.assertGreaterEqual(len(set(rooms[previous + 1:i])), 4)
+                self.assertGreaterEqual(len(set(rooms[previous + 1 : i])), 4)
         visits = self.pilot.impostor.sweep.status()["roomVisits"]
         self.assertTrue(all(visits.get(room, 0) > 0 for room in set(rooms)))
         self.pilot.set_enabled(False)

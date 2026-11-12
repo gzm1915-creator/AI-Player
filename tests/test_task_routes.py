@@ -1,4 +1,5 @@
 """Replay the actual weapons console mismatch and keep shared tasks compatible."""
+
 import importlib
 import json
 import sys
@@ -10,7 +11,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 package = types.ModuleType("task_route_fixture")
-package.__path__ = [str(ROOT / "plugin/among_us_neko")]
+package.__path__ = [str(ROOT)]
 sys.modules[package.__name__] = package
 routes = importlib.import_module("task_route_fixture.task_routes")
 b = importlib.import_module("task_route_fixture.bridge")
@@ -19,15 +20,31 @@ b = importlib.import_module("task_route_fixture.bridge")
 class TaskRouteTests(unittest.TestCase):
     def setUp(self):
         self.catalog = json.loads((ROOT / "game-plugin/data/skeld-route-observations.json").read_text(encoding="utf-8"))
-        self.asteroids = {"taskId": 1, "taskType": "ClearAsteroids", "step": 0, "maxStep": 20,
-                          "complete": False, "locations": [{"x": 9.087601, "y": 1.812}]}
+        self.asteroids = {
+            "taskId": 1,
+            "taskType": "ClearAsteroids",
+            "step": 0,
+            "maxStep": 20,
+            "complete": False,
+            "locations": [{"x": 9.087601, "y": 1.812}],
+        }
         self.commands = []
         self.bridge = types.SimpleNamespace(
             route_anchors=lambda: self.catalog["anchors"],
-            navigate=lambda anchor, position=None: self.commands.append((anchor, position)) or {"commandId": "asteroid-test"})
-        self.state = {"connected": True, "sessionId": "fixture", "matchId": 1, "mapId": "TheSkeld", "phase": "TASKS",
-                      "self": {"canMove": True, "position": {"x": 0, "y": 2}}, "tasks": [self.asteroids],
-                      "navigation": {"state": "idle"}, "runtimeControl": {"autoNavigation": True}}
+            navigate=lambda anchor, position=None: self.commands.append((anchor, position))
+            or {"commandId": "asteroid-test"},
+        )
+        self.state = {
+            "connected": True,
+            "sessionId": "fixture",
+            "matchId": 1,
+            "mapId": "TheSkeld",
+            "phase": "TASKS",
+            "self": {"canMove": True, "position": {"x": 0, "y": 2}},
+            "tasks": [self.asteroids],
+            "navigation": {"state": "idle"},
+            "runtimeControl": {"autoNavigation": True},
+        }
 
     def test_actual_asteroid_console_uses_its_standing_point(self):
         pilot = b.Autopilot(self.bridge)
@@ -38,7 +55,9 @@ class TaskRouteTests(unittest.TestCase):
         self.assertEqual(self.commands[0][1]["taskId"], 1)
 
     def test_missing_asteroid_standing_point_never_borrows_the_data_console(self):
-        self.catalog["anchors"] = [a for a in self.catalog["anchors"] if a["anchorId"] != "skeld.weapons.clear-asteroids"]
+        self.catalog["anchors"] = [
+            a for a in self.catalog["anchors"] if a["anchorId"] != "skeld.weapons.clear-asteroids"
+        ]
         pilot = b.Autopilot(self.bridge)
         pilot.set_enabled(True)
         with patch("time.monotonic", return_value=100):
@@ -70,8 +89,12 @@ class TaskRouteTests(unittest.TestCase):
 
     def test_asteroid_route_stays_on_an_existing_verified_route_node(self):
         point = next(a for a in self.catalog["anchors"] if a["anchorId"] == "skeld.weapons.clear-asteroids")["position"]
-        recorded_ids = {s.get(key) for s in self.catalog["routeSegments"] if s.get("status") == "observed_success"
-                        for key in ("fromAnchorId", "toAnchorId")}
+        recorded_ids = {
+            s.get(key)
+            for s in self.catalog["routeSegments"]
+            if s.get("status") == "observed_success"
+            for key in ("fromAnchorId", "toAnchorId")
+        }
         matching = [a for a in self.catalog["anchors"] if a["anchorId"] in recorded_ids and a["position"] == point]
         self.assertTrue(matching, "new task standing point must already be recorded in the walking network")
 
@@ -80,8 +103,9 @@ class TaskRouteTests(unittest.TestCase):
         anchor = next(a for a in self.catalog["anchors"] if a["anchorId"] == "skeld.weapons.clear-asteroids")
         self.assertFalse(pilot.impostor.inside_room(anchor))
         cover = pilot.impostor.cover_targets(self.state, self.catalog["anchors"], 100)
-        self.assertFalse(any(a["anchorId"] == anchor["anchorId"] or task["taskType"] == "ClearAsteroids"
-                             for a, task in cover))
+        self.assertFalse(
+            any(a["anchorId"] == anchor["anchorId"] or task["taskType"] == "ClearAsteroids" for a, task in cover)
+        )
         self.assertEqual(len(cover), 3)  # Two optional wiring stops and communications data.
 
 
