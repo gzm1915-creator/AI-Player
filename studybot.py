@@ -12,6 +12,17 @@ from .task_batch import TaskBatch
 from .task_receipts import receipt_for
 
 REPAIR_TASKS = {"FixLights", "RestoreOxy", "FixComms", "ResetReactor"}
+CHILD_LOG_MAX_BYTES = 4 * 1024 * 1024
+
+
+def rotate_child_log(path):
+    """Rotate only between owned children, when no subprocess holds the file."""
+    if path.exists() and path.stat().st_size >= CHILD_LOG_MAX_BYTES:
+        for index in (2, 1):
+            old = path.with_name(f"{path.name}.{index}")
+            if old.exists():
+                old.replace(path.with_name(f"{path.name}.{index + 1}"))
+        path.replace(path.with_name(path.name + ".1"))
 
 
 class StudyBot:
@@ -348,6 +359,7 @@ class StudyBot:
             cmd += ["--task-id", str(task["taskId"])]
         log_path = self.bridge.journal.root / "studybot/adapter-child.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
+        rotate_child_log(log_path)
         self.log = log_path.open("a", encoding="utf-8")
         try:
             self.proc = subprocess.Popen(

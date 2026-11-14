@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 import ctypes
 import importlib
+import importlib.util
 import json
 import os
-import re
 import subprocess
 import sys
 import time
@@ -25,6 +25,14 @@ _controller_lock = importlib.import_module("controller_lock")
 acquire_named_mutex = _controller_lock.acquire_named_mutex
 release_named_mutex = _controller_lock.release_named_mutex
 
+# The child is a standalone script; load the parent's protocol without changing
+# StudyBot's module search order or importing the N.E.K.O. entry package.
+_protocol_spec = importlib.util.spec_from_file_location(
+    "studybot_protocol_files", Path(__file__).resolve().parent.parent / "files.py"
+)
+protocol = importlib.util.module_from_spec(_protocol_spec)
+_protocol_spec.loader.exec_module(protocol)
+
 ADAPTER_MUTEX_NAME = r"Local\AmongUsAI_MinigameAdapter"
 PLUGIN_ROOT = Path(os.environ["AU_PLUGIN_ROOT"])
 PROJECT_ROOT = Path(os.environ["AU_STUDYBOT_STATE_DIR"])
@@ -35,12 +43,12 @@ NAVIGATION_STATUS_PATH = Path(os.environ["AU_NAV_STATUS"])
 def read_latest_telemetry() -> dict:
     for _ in range(20):
         try:
-            with (PLUGIN_ROOT / "latest.json").open(
-                "r",
-                encoding="utf-8",
-            ) as stream:
-                return json.load(stream)
-        except (OSError, json.JSONDecodeError):
+            with protocol.open_shared(PLUGIN_ROOT / "latest.json") as stream:
+                value = json.loads(stream.read().decode("utf-8-sig"))
+            if not isinstance(value, dict):
+                raise ValueError("Invalid telemetry snapshot")
+            return value
+        except (OSError, ValueError, UnicodeError):
             time.sleep(0.05)
     raise OSError("Telemetry is unavailable.")
 
@@ -105,51 +113,6 @@ def enable_oxygen_opencv(tasks_module):
 
 
 SWIPE_DRAG_SECONDS = 0.40
-UNLOCK_CELL_ORIGINS = [
-    (585, 395),
-    (737, 395),
-    (890, 395),
-    (1040, 395),
-    (1195, 395),
-    (585, 548),
-    (737, 548),
-    (890, 548),
-    (1040, 548),
-    (1195, 548),
-]
-UNLOCK_BUTTON_CENTERS = [
-    (660, 450),
-    (820, 450),
-    (960, 450),
-    (1120, 450),
-    (1260, 450),
-    (660, 620),
-    (820, 620),
-    (960, 620),
-    (1120, 620),
-    (1260, 620),
-]
-UNLOCK_TEMPLATE_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "work"
-    / "game-assets-private"
-    / "initialmaps-ripped"
-    / "Assets"
-    / "Texture2D"
-    / "UnlockManifolds.png"
-)
-UNLOCK_TEMPLATE_BOXES = {
-    1: (128, 175, 211, 255),
-    2: (212, 175, 294, 255),
-    3: (43, 175, 126, 255),
-    4: (77, 95, 158, 175),
-    5: (293, 175, 378, 255),
-    6: (211, 598, 294, 676),
-    7: (378, 175, 465, 255),
-    8: (128, 598, 212, 676),
-    9: (465, 175, 550, 255),
-    10: (550, 175, 632, 255),
-}
 INSPECT_SAMPLE_TUBE_X = [733, 846, 963, 1074, 1187]
 VENT_CLEANING_LAYOUT_PATH = PROJECT_ROOT / "vent-cleaning-layout.json"
 
@@ -163,20 +126,17 @@ def request_close_minigame() -> None:
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         return
 
-    NAVIGATION_COMMAND_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temporary = NAVIGATION_COMMAND_PATH.with_suffix(f".{uuid.uuid4().hex}.tmp")
-    temporary.write_text(
-        json.dumps(
+    try:
+        protocol.atomic(
+            NAVIGATION_COMMAND_PATH,
             {
                 "commandId": uuid.uuid4().hex,
                 "action": "close_minigame",
             },
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    temporary.replace(NAVIGATION_COMMAND_PATH)
+        )
+    except OSError as exc:
+        print(f"studybot_adapter close_request_failed: {exc}", file=sys.stderr, flush=True)
+        return
 
     deadline = time.monotonic() + 1.0
     while time.monotonic() < deadline:
@@ -224,26 +184,7 @@ def send_plugin_action(
         "action": action,
         **fields,
     }
-    if sample_action:
-        # Use the same Windows-safe file hand-off as the parent plugin.
-        from importlib.util import module_from_spec, spec_from_file_location
-
-        spec = spec_from_file_location("sample_protocol_files", Path(__file__).resolve().parent.parent / "files.py")
-        protocol = module_from_spec(spec)
-        spec.loader.exec_module(protocol)
-        protocol.atomic(NAVIGATION_COMMAND_PATH, command)
-        return wait_plugin_action(command_id, timeout_seconds)
-    NAVIGATION_COMMAND_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temporary = NAVIGATION_COMMAND_PATH.with_suffix(f".{uuid.uuid4().hex}.tmp")
-    temporary.write_text(
-        json.dumps(
-            command,
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    temporary.replace(NAVIGATION_COMMAND_PATH)
+    protocol.atomic(NAVIGATION_COMMAND_PATH, command)
 
     return wait_plugin_action(command_id, timeout_seconds)
 
@@ -252,8 +193,11 @@ def wait_plugin_action(command_id, timeout_seconds):
     deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         try:
-            status = json.loads(NAVIGATION_STATUS_PATH.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+            with protocol.open_shared(NAVIGATION_STATUS_PATH) as stream:
+                status = json.loads(stream.read().decode("utf-8-sig"))
+            if not isinstance(status, dict):
+                raise ValueError("Invalid command receipt")
+        except (OSError, ValueError, UnicodeError):
             time.sleep(0.02)
             continue
         if status.get("commandId") != command_id:
@@ -1653,208 +1597,6 @@ def resolve_method(task_type: str, step: int) -> str | None:
     return METHOD_BY_TASK.get(task_type)
 
 
-def normalize_unlock_number(value: str) -> int | None:
-    token = re.sub(r"[^0-9NIO]", "", value.upper())
-    if token in {"10", "N", "IO", "I0", "1O", "L0"}:
-        return 10
-    if len(token) == 1 and token in "123456789":
-        return int(token)
-    return None
-
-
-def normalize_glyph_mask(image, inner_margin: int = 10):
-    from PIL import ImageOps
-
-    gray = ImageOps.grayscale(image)
-    width, height = gray.size
-    margin = max(0, min(inner_margin, width // 4, height // 4))
-    gray = gray.crop((margin, margin, width - margin, height - margin))
-    array = np.asarray(gray)
-    mask = array < 105
-    ys, xs = np.where(mask)
-    if len(xs) < 15:
-        return None
-    x0, x1 = int(xs.min()), int(xs.max()) + 1
-    y0, y1 = int(ys.min()), int(ys.max()) + 1
-    glyph = gray.crop((x0, y0, x1, y1)).resize((32, 48))
-    glyph_array = np.asarray(glyph)
-    normalized = glyph_array < 140
-    if normalized.sum() < 12:
-        return None
-    return normalized
-
-
-def unlock_templates():
-    from PIL import Image
-
-    atlas = Image.open(UNLOCK_TEMPLATE_PATH).convert("RGB")
-    templates = {}
-    for number, box in UNLOCK_TEMPLATE_BOXES.items():
-        panel = atlas.crop(box)
-        mask = normalize_glyph_mask(panel, inner_margin=18)
-        if mask is None:
-            raise RuntimeError(f"Could not build unlock template {number}")
-        templates[number] = mask
-    return templates
-
-
-def classify_unlock_cell(image, templates) -> int:
-    mask = normalize_glyph_mask(image, inner_margin=18)
-    if mask is None:
-        raise ValueError("Unlock button glyph is empty")
-    scores = {}
-    for number, template in templates.items():
-        mismatch = np.logical_xor(mask, template).mean()
-        scores[number] = float(mismatch)
-    number, score = min(scores.items(), key=lambda item: item[1])
-    if score > 0.34:
-        raise ValueError(f"Ambiguous unlock glyph: best={number} score={score:.3f}")
-    return number
-
-
-def detect_unlock_layout() -> list[int]:
-    from PIL import ImageGrab
-
-    templates = unlock_templates()
-    deadline = time.monotonic() + 15.0
-    last_error = ""
-    last_signature = None
-    while time.monotonic() < deadline:
-        try:
-            _, signature = latest_visual_snapshot()
-            if signature == last_signature:
-                time.sleep(0.3)
-                continue
-            last_signature = signature
-            image = ImageGrab.grab(bbox=(0, 0, 1920, 1080)).convert("RGB")
-            detected = []
-            for center_x, center_y in UNLOCK_BUTTON_CENTERS:
-                cell = image.crop(
-                    (
-                        center_x - 42,
-                        center_y - 42,
-                        center_x + 42,
-                        center_y + 42,
-                    )
-                )
-                detected.append(classify_unlock_cell(cell, templates))
-            if sorted(detected) == list(range(1, 11)):
-                print(f"unlock_manifold template order={detected}", flush=True)
-                return detected
-            last_error = f"Non-permutation: {detected}"
-        except Exception as exception:
-            last_error = str(exception)
-        time.sleep(0.3)
-    raise RuntimeError(f"UnlockManifolds template matching failed: {last_error}")
-
-
-def telemetry_unlock_layout() -> list[int] | None:
-    try:
-        telemetry = read_latest_telemetry()
-        order = [int(value) for value in telemetry["ui"].get("unlockManifoldsOrder", [])]
-    except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError):
-        return None
-    if len(order) == 10 and sorted(order) == list(range(1, 11)):
-        return order
-    return None
-
-
-def telemetry_unlock_buttons() -> dict[int, tuple[float, float]] | None:
-    """Return the live screen position for each displayed number.
-
-    The minigame's Buttons array is in logical number order, but its
-    transforms are shuffled on screen. Never infer click positions from
-    the array index.
-    """
-    try:
-        telemetry = read_latest_telemetry()
-        raw_buttons = telemetry["ui"].get("unlockManifoldsButtons", [])
-        by_number: dict[int, tuple[float, float]] = {}
-        for raw in raw_buttons:
-            number = int(raw["number"])
-            x = float(raw["x"])
-            y = float(raw["y"])
-            if (
-                number < 1
-                or number > 10
-                or number in by_number
-                or not np.isfinite(x)
-                or not np.isfinite(y)
-                or x < 0
-                or x > 1920
-                or y < 0
-                or y > 1080
-            ):
-                return None
-            by_number[number] = (x, y)
-    except (
-        OSError,
-        json.JSONDecodeError,
-        KeyError,
-        TypeError,
-        ValueError,
-    ):
-        return None
-    if sorted(by_number) != list(range(1, 11)):
-        return None
-    return by_number
-
-
-def ocr_unlock_cells() -> list[int]:
-    import pytesseract
-    from PIL import ImageEnhance, ImageGrab, ImageOps
-
-    cells = []
-    for index, (x, y) in enumerate(UNLOCK_CELL_ORIGINS):
-        cell = ImageGrab.grab(bbox=(x + 10, y + 10, x + 125, y + 125))
-        preview_path = Path(__file__).resolve().parent / "outputs" / "tasks" / f"unlock-cell-{index + 1}.png"
-        preview_path.parent.mkdir(parents=True, exist_ok=True)
-        cell.save(preview_path)
-        cells.append(cell.convert("RGB"))
-
-    config = "--psm 10 -c tessedit_char_whitelist=0123456789N"
-    variants = []
-    for cell in cells:
-        gray = ImageOps.grayscale(cell)
-        gray = ImageOps.autocontrast(gray)
-        variants.append(
-            [
-                gray,
-                ImageEnhance.Contrast(gray).enhance(2.0),
-                gray.point(lambda pixel: 255 if pixel >= 150 else 0),
-                gray.point(lambda pixel: 255 if pixel >= 205 else 0),
-                ImageOps.invert(gray),
-            ]
-        )
-
-    last_values: list[str] = []
-    for variant_index in range(len(variants[0])):
-        numbers: list[int] = []
-        last_values = []
-        for cell_variants in variants:
-            image = cell_variants[variant_index].resize(
-                (
-                    cell_variants[variant_index].width * 4,
-                    cell_variants[variant_index].height * 4,
-                )
-            )
-            text = pytesseract.image_to_string(image, config=config)
-            last_values.append(text)
-            number = normalize_unlock_number(text)
-            if number is None:
-                break
-            numbers.append(number)
-
-        if sorted(numbers) == list(range(1, 11)):
-            print(
-                f"unlock_manifold OCR order={numbers} variant={variant_index}",
-                flush=True,
-            )
-            return numbers
-
-    raise RuntimeError(f"UnlockManifolds OCR failed: {last_values}")
-
-
 def solve_unlock_manifolds(pyautogui) -> None:
     for number in range(1, 11):
         if not send_plugin_action(
@@ -2059,7 +1801,12 @@ def run_single_instance() -> int:
             return 1
         finally:
             if "--preflight" not in sys.argv and "InspectSample" not in sys.argv:
-                request_close_minigame()
+                try:
+                    request_close_minigame()
+                except Exception:
+                    # Cleanup must not replace the original skill result. The
+                    # parent still owns the post-exit close/retry mechanism.
+                    traceback.print_exc()
     finally:
         release_named_mutex(lock)
 

@@ -614,6 +614,14 @@ class BasicImpostor:
         if "x" not in pos or "y" not in pos or state.get("mapId") not in ("TheSkeld", "Skeld"):
             self.result.update(state="blocked", reason="基础内鬼目前仅支持有已验证路线的 The Skeld")
             return
+        if self.phase == "escape" and not (
+            isinstance(self.body, dict)
+            and all(type(self.body.get(axis)) in (int, float) and math.isfinite(self.body[axis]) for axis in ("x", "y"))
+        ):
+            # Do not guess a crime scene or resume hunting after damaged state.
+            self.stop_owned()
+            self.result.update(state="blocked", reason="撤离阶段缺少有效击杀位置，已停止自动行动；请人工接管。")
+            return
         if state.get("minigameOpen") or state.get("runtimeStatus", {}).get("minigameAutomation", {}).get("busy"):
             self.result.update(state="waiting", reason="等待小游戏与技能输入结束")
             return

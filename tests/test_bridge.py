@@ -253,7 +253,7 @@ class BridgeTests(unittest.TestCase):
                 )
             )
             asyncio.run(obj.startup())
-            self.addCleanup(obj.shutdown)
+            self.addCleanup(lambda: asyncio.run(obj.shutdown()))
             state = asyncio.run(obj.among_us_state())
             self.assertTrue(state["connected"])
             sent = asyncio.run(obj.among_us_say(text="Neko测试", session_id=self.session, meeting_id=1))
@@ -368,7 +368,8 @@ class BridgeTests(unittest.TestCase):
             while monitor.push_count == 0 and time.monotonic() < deadline:
                 time.sleep(0.05)
             self.assertTrue(monitor.health()["alive"])
-            self.assertEqual(monitor.error_count, 1)
+            self.assertEqual(monitor.error_count, 0)
+            self.assertEqual(monitor.total_error_count, 1)
             self.assertEqual(monitor.push_count, 1)
         finally:
             monitor.close()

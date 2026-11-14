@@ -80,13 +80,13 @@ def atomic(path, value):
     temporary = path.with_suffix(f".{uuid.uuid4().hex}.tmp")
     try:
         temporary.write_text(json.dumps(value, ensure_ascii=False, allow_nan=False), encoding="utf-8")
-        for attempt in range(5):
+        for attempt in range(10):
             try:
                 replace_file(temporary, path)
                 return
             except PermissionError:
-                if attempt == 4:
+                if attempt == 9:
                     raise
-                time.sleep(0.005)
+                time.sleep(0.02)
     finally:
         temporary.unlink(missing_ok=True)

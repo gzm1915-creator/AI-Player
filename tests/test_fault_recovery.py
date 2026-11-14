@@ -172,6 +172,6 @@ class FaultRecoveryTests(unittest.TestCase):
         ):
             with self.assertRaises(PermissionError):
                 b.atomic(path, {"revision": 2})
-            self.assertEqual(replace.call_count, 5)
+            self.assertEqual(replace.call_count, 10)
         self.assertEqual(b.load(path), {"revision": 1})
         self.assertFalse(list(self.root.glob("*.tmp")))

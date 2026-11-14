@@ -2,7 +2,7 @@
 id = "among_us_neko"
 name = "Among us 虚拟玩家"
 description = "这是一个能够让你的AI伙伴以玩家身份陪伴游玩的插件。本包提供N.E.K.O.适配，游戏接口不绑定AI宿主。会议发言调用say，投票或弃票调用vote，主动破坏调用sabotage，击杀调用kill，管道调用vent；control仅供面板使用。需要游戏端BepInEx组件。"
-version = "0.1.36"
+version = "0.1.37"
 entry = "plugin.plugins.among_us_neko:AmongUsNekoPlugin"
 
 [plugin.author]

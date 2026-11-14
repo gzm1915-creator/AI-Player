@@ -1,8 +1,11 @@
 """Native N.E.K.O. extension. Uses the host's configured model and voice."""
 
+import asyncio
 import hashlib
 import secrets
+import threading
 import time
+from functools import wraps
 from pathlib import Path
 
 from plugin.sdk.plugin import NekoPluginBase, Ok, lifecycle, llm_tool, neko_plugin, plugin_entry, ui
@@ -18,6 +21,16 @@ MEETING = {
 HISTORY_OPERATIONS = ("history_pause", "history_resume", "history_clear_current", "history_clear_all")
 
 
+def worker_entry(method):
+    """Keep file IO, thread locks and subprocess waits off the host event loop."""
+
+    @wraps(method)
+    async def invoke(self, *args, **kwargs):
+        return await asyncio.to_thread(self._run_sync, method, args, kwargs)
+
+    return invoke
+
+
 @neko_plugin
 class AmongUsNekoPlugin(NekoPluginBase):
     def __init__(self, ctx):
@@ -26,6 +39,14 @@ class AmongUsNekoPlugin(NekoPluginBase):
         self.monitor = None
         self.settings = {}
         self.ui_token = secrets.token_urlsafe(32)
+        self.operation_lock = threading.RLock()
+        self.host_loop = None
+
+    def _run_sync(self, method, args, kwargs):
+        # Connect/control/tool calls must not mutate different bridge instances
+        # concurrently after being moved to the executor.
+        with self.operation_lock:
+            return method(self, *args, **kwargs)
 
     def _settings_path(self):
         return Path(self.data_path()) / "connection.json"
@@ -47,14 +68,20 @@ class AmongUsNekoPlugin(NekoPluginBase):
             if game_dir
             else None
         )
-        self.monitor = Monitor(self.bridge, self.push_message, self.settings) if self.bridge else None
+        self.monitor = (
+            Monitor(self.bridge, self.push_message, self.settings, host_loop=self.host_loop) if self.bridge else None
+        )
         if self.monitor:
             self.monitor.auto_reply = self.settings.get("auto_reply", True)
             self.monitor.start()
 
     @lifecycle(id="startup")
     async def startup(self, **_):
+        self.host_loop = asyncio.get_running_loop()
         config = await self.config.dump(timeout=5.0)
+        return await asyncio.to_thread(self._run_sync, type(self)._startup, (config,), {})
+
+    def _startup(self, config):
         section = config.get("among_us", {}) if isinstance(config, dict) else {}
         self.settings = load(self._settings_path())
         game_dir = self.settings.get("game_dir") or section.get("game_dir", "")
@@ -65,6 +92,7 @@ class AmongUsNekoPlugin(NekoPluginBase):
         return Ok({"summary": "Among Us观测已启动；正在等待游戏遥测。"})
 
     @lifecycle(id="shutdown")
+    @worker_entry
     def shutdown(self, **_):
         if self.monitor:
             if self.monitor.pilot.enabled:
@@ -81,7 +109,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             return {"error": str(exc)}
 
     @plugin_entry(id="status", name="Among Us连接状态", description="查看游戏连接及可见状态。", input_schema=EMPTY)
-    async def status(self, **_):
+    @worker_entry
+    def status(self, **_):
         return Ok(
             {**model_state(self._call("read")), "observer": self.monitor.health() if self.monitor else {"alive": False}}
         )
@@ -92,7 +121,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="实时读取Among Us游戏遥测的当前连接、坐标、中文位置、附近玩家及已走路线。以本次summary为准，不能沿用聊天记忆中的断线结论。无需打开本地文件。",
         input_schema=EMPTY,
     )
-    async def map(self, **_):
+    @worker_entry
+    def map(self, **_):
         return Ok(self._call("map_context"))
 
     @plugin_entry(
@@ -107,7 +137,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             },
         },
     )
-    async def history(self, kind="all", limit=30, **_):
+    @worker_entry
+    def history(self, kind="all", limit=30, **_):
         result = self._call("history", kind, limit)
         result.pop("logDirectory", None)
         return Ok(result)
@@ -207,7 +238,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         return Ok(await self.among_us_escape_policy(enabled))
 
     @ui.context(id="dashboard", title="Among Us 控制面板")
-    async def dashboard(self):
+    @worker_entry
+    def dashboard(self):
         return {
             "game": self._call("read"),
             "gameDir": self.settings.get("game_dir", ""),
@@ -267,7 +299,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             "required": ["operation", "ui_token"],
         },
     )
-    async def control(
+    @worker_entry
+    def control(
         self,
         operation="",
         game_dir="",
@@ -278,11 +311,14 @@ class AmongUsNekoPlugin(NekoPluginBase):
         anchor_id="",
         target_vent_id=None,
         entry_vent_id=None,
+        studybot_root="",
+        studybot_python="",
+        history_record_id=None,
         **_,
     ):
+        if not isinstance(ui_token, str) or not secrets.compare_digest(ui_token, self.ui_token):
+            raise ValueError("请从插件控制面板操作。")
         if operation == "studybot_config":
-            if not isinstance(ui_token, str) or not secrets.compare_digest(ui_token, self.ui_token):
-                raise ValueError("请从插件控制面板操作。")
             if not self.monitor:
                 raise ValueError("请先连接游戏目录。")
             with self.bridge.lock:
@@ -290,54 +326,33 @@ class AmongUsNekoPlugin(NekoPluginBase):
                 self.monitor.pilot.set_enabled(False, source="panel.studybot_config")
                 self.bridge.halt()
                 self.settings.update(
-                    studybot_root=str(_.get("studybot_root", "")).strip().strip('"'),
-                    studybot_python=str(_.get("studybot_python", "")).strip().strip('"'),
+                    studybot_root=str(studybot_root).strip().strip('"'),
+                    studybot_python=str(studybot_python).strip().strip('"'),
                 )
                 atomic(self._settings_path(), self.settings)
                 self.monitor.solver.settings = self.settings
                 return Ok(self.monitor.solver.preflight())
-        if not isinstance(ui_token, str) or not secrets.compare_digest(ui_token, self.ui_token):
-            raise ValueError("请从插件控制面板操作。")
-        if self.bridge and operation in HISTORY_OPERATIONS:
-            history_lock = self.monitor.delivery_lock if self.monitor else self.bridge.lock
-            with history_lock:
-                return await self._control(
-                    operation,
-                    game_dir,
-                    text,
-                    flag,
-                    enabled,
-                    anchor_id,
-                    _.get("history_record_id"),
-                    target_vent_id,
-                    entry_vent_id,
-                )
-        if self.bridge and operation not in ("connect", "resume"):
-            with self.bridge.lock:
-                return await self._control(
-                    operation,
-                    game_dir,
-                    text,
-                    flag,
-                    enabled,
-                    anchor_id,
-                    _.get("history_record_id"),
-                    target_vent_id,
-                    entry_vent_id,
-                )
-        return await self._control(
+        arguments = (
             operation,
             game_dir,
             text,
             flag,
             enabled,
             anchor_id,
-            _.get("history_record_id"),
+            history_record_id,
             target_vent_id,
             entry_vent_id,
         )
+        if self.bridge and operation in HISTORY_OPERATIONS:
+            history_lock = self.monitor.delivery_lock if self.monitor else self.bridge.lock
+            with history_lock:
+                return self._control(*arguments)
+        if self.bridge and operation not in ("connect", "resume"):
+            with self.bridge.lock:
+                return self._control(*arguments)
+        return self._control(*arguments)
 
-    async def _control(
+    def _control(
         self,
         operation,
         game_dir,
@@ -440,13 +455,13 @@ class AmongUsNekoPlugin(NekoPluginBase):
                 raise ValueError(result["error"])
             return Ok(result)
         elif operation == "manual_vent":
-            result = await self.among_us_manual_vent(text)
+            result = self._manual_vent(text)
             if "error" in result:
                 raise ValueError(result["error"])
             return Ok(result)
         elif operation in ("vent_status", "vent_travel", "vent_exit"):
             action = {"vent_status": "status", "vent_travel": "travel", "vent_exit": "exit"}[operation]
-            result = await self.among_us_vent(action, target_vent_id, entry_vent_id)
+            result = self._vent(action, target_vent_id, entry_vent_id)
             if "error" in result:
                 raise ValueError(result["error"])
             return Ok(result)
@@ -483,7 +498,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="读取Among Us当前可见状态、附近玩家位置、会议ID和地图移动锚点。过期状态connected为false，不得用于执行动作。",
         parameters=EMPTY,
     )
-    async def among_us_state(self, **_):
+    @worker_entry
+    def among_us_state(self, **_):
         state = model_state(self._call("read"))
         if self.bridge:
             state["anchors"] = self.bridge.anchors()
@@ -500,7 +516,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             },
         },
     )
-    async def among_us_history(self, kind="all", limit=30, **_):
+    @worker_entry
+    def among_us_history(self, kind="all", limit=30, **_):
         result = self._call("history", kind, limit)
         result.pop("logDirectory", None)
         return result
@@ -510,7 +527,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="直接读取自身当前位置、按时间排列的已走路线摘要、计划中的后续路径点和最后目击玩家。结果为可读文本与JSON，不需要访问本地文件；计划路线不代表已经走过。",
         parameters=EMPTY,
     )
-    async def among_us_map(self, **_):
+    @worker_entry
+    def among_us_map(self, **_):
         return self._call("map_context")
 
     @llm_tool(
@@ -532,7 +550,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             "required": ["text"],
         },
     )
-    async def among_us_say(self, text=None, session_id=None, meeting_id=None, **_):
+    @worker_entry
+    def among_us_say(self, text=None, session_id=None, meeting_id=None, **_):
         return self._call("say", text, session_id, meeting_id)
 
     @llm_tool(
@@ -543,7 +562,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             "properties": {"target": {"type": "string", "enum": ["lights", "comms", "reactor", "oxygen"]}},
         },
     )
-    async def among_us_sabotage(self, target="lights", **_):
+    @worker_entry
+    def among_us_sabotage(self, target="lights", **_):
         if not self.bridge:
             return {"error": "请先连接游戏。"}
         with self.bridge.lock:
@@ -560,7 +580,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="普通内鬼击杀原生按钮当前选中的可见非同伴目标，player_id可省略。需自动控制已启用，冷却、目击者和墙体校验仍有效；submitted不是击杀成功。无需ui_token。",
         parameters={"type": "object", "properties": {"player_id": {"type": "integer", "minimum": 0, "maximum": 254}}},
     )
-    async def among_us_kill(self, player_id=None, **_):
+    @worker_entry
+    def among_us_kill(self, player_id=None, **_):
         if not self.bridge:
             return {"error": "请先连接游戏。"}
         with self.bridge.lock:
@@ -588,7 +609,11 @@ class AmongUsNekoPlugin(NekoPluginBase):
             },
         },
     )
-    async def among_us_vent(self, action="status", target_vent_id=None, entry_vent_id=None, **_):
+    @worker_entry
+    def among_us_vent(self, action="status", target_vent_id=None, entry_vent_id=None, **_):
+        return self._vent(action, target_vent_id, entry_vent_id)
+
+    def _vent(self, action="status", target_vent_id=None, entry_vent_id=None, **_):
         if not self.bridge:
             return {"error": "请先连接游戏。"}
         with self.bridge.lock:
@@ -610,7 +635,11 @@ class AmongUsNekoPlugin(NekoPluginBase):
             "required": ["command"],
         },
     )
-    async def among_us_manual_vent(self, command="钻管道", **_):
+    @worker_entry
+    def among_us_manual_vent(self, command="钻管道", **_):
+        return self._manual_vent(command)
+
+    def _manual_vent(self, command="钻管道", **_):
         if not self.bridge:
             return {"error": "请先连接游戏。"}
         with self.bridge.lock:
@@ -628,7 +657,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="设置击杀后自动撤离规则，enabled=true优先管道，false只走地面；需开启自动游玩和管道许可。出口观察2至15秒，无人再出管。只修改策略，不能声称已完成进管或撤离。",
         parameters={"type": "object", "properties": {"enabled": {"type": "boolean"}}, "required": ["enabled"]},
     )
-    async def among_us_escape_policy(self, enabled=True, **_):
+    @worker_entry
+    def among_us_escape_policy(self, enabled=True, **_):
         result = self._call("set_runtime", "impostorVentEscape", enabled)
         if "error" in result:
             return result
@@ -650,7 +680,8 @@ class AmongUsNekoPlugin(NekoPluginBase):
             "required": ["player_id", "session_id", "meeting_id"],
         },
     )
-    async def among_us_vote(self, player_id=None, session_id=None, meeting_id=None, **_):
+    @worker_entry
+    def among_us_vote(self, player_id=None, session_id=None, meeting_id=None, **_):
         return self._call("vote", player_id, session_id, meeting_id)
 
     @llm_tool(
@@ -658,13 +689,15 @@ class AmongUsNekoPlugin(NekoPluginBase):
         description="任务阶段在The Skeld地图移动到among_us_state列出的真实anchorId。只负责寻路，不会自动完成所有小游戏。",
         parameters={"type": "object", "properties": {"anchor_id": {"type": "string"}}, "required": ["anchor_id"]},
     )
-    async def among_us_navigate(self, anchor_id=None, **_):
+    @worker_entry
+    def among_us_navigate(self, anchor_id=None, **_):
         if self.monitor and self.monitor.pilot.enabled:
             return {"error": "面板自动任务导航正在控制移动；请使用面板关闭后再手动指定目标，避免控制器争用。"}
         return self._call("navigate", anchor_id)
 
     @llm_tool(name="among_us_stop", description="停止Among Us当前自动移动。", parameters=EMPTY)
-    async def among_us_stop(self, **_):
+    @worker_entry
+    def among_us_stop(self, **_):
         if self.bridge:
             with self.bridge.lock:
                 if self.monitor:

@@ -26,6 +26,8 @@ from .task_routes import anchor_accepts_task
 from .vents import path_between, vent_options
 from .voting import VoteReminder
 
+PUSH_TIMEOUT_SECONDS = 3
+
 
 def age(stamp):
     try:
@@ -203,9 +205,20 @@ class Bridge:
                     try:
                         event = json.loads(line)
                         if event.get("event") == "chat":
-                            chat.append(
-                                {k: event.get(k) for k in ("index", "speakerId", "speaker", "text", "isLocalPlayer")}
+                            message = {k: event.get(k) for k in ("index", "speakerId", "isLocalPlayer")}
+                            raw_text = event.get("text")
+                            raw_speaker = event.get("speaker")
+                            if not isinstance(raw_text, str):
+                                continue
+                            if not isinstance(raw_speaker, str):
+                                raw_speaker = ""
+                            message.update(
+                                text=raw_text[:512],
+                                speaker=raw_speaker[:80],
+                                trust="untrusted_player_chat",
+                                truncated=len(raw_text) > 512 or len(raw_speaker) > 80,
                             )
+                            chat.append(message)
                     except (ValueError, AttributeError):
                         continue
             except OSError:
@@ -1238,7 +1251,7 @@ PROMPT = (
 
 
 class Monitor:
-    def __init__(self, bridge, push, settings=None):
+    def __init__(self, bridge, push, settings=None, *, host_loop=None):
         self.bridge, self.push = bridge, push
         self.delivery_lock = threading.RLock()
         self.stop = threading.Event()
@@ -1252,6 +1265,9 @@ class Monitor:
         self.last_tick = 0.0
         self.last_error = ""
         self.error_count = 0
+        self.total_error_count = 0
+        self.host_loop = host_loop
+        self.delivery_future = None
         self.push_count = 0
         self.pending_event = False
         self.last_review = 0.0
@@ -1280,6 +1296,7 @@ class Monitor:
             "heartbeatAge": round(time.monotonic() - self.last_tick, 1) if self.last_tick else None,
             "lastError": self.last_error,
             "errorCount": self.error_count,
+            "totalErrorCount": self.total_error_count,
             "pushCount": self.push_count,
             "autoReply": self.auto_reply,
             "autoVote": self.auto_vote,
@@ -1319,6 +1336,7 @@ class Monitor:
             except Exception as exc:
                 self.last_error = "历史设置已应用，静默通知暂未送达：" + str(exc)
                 self.error_count += 1
+                self.total_error_count += 1
 
     def tick(self):
         self.last_tick = time.monotonic()
@@ -1560,11 +1578,34 @@ class Monitor:
             else "among_us_state",
         )
         if inspect.isawaitable(result):
+            loop = self.host_loop
+            if loop is None or loop.is_closed() or not loop.is_running():
+                if inspect.iscoroutine(result):
+                    result.close()
+                raise RuntimeError("异步推送需要仍在运行的宿主事件循环，请重载插件。")
+            try:
+                same_loop = asyncio.get_running_loop() is loop
+            except RuntimeError:
+                same_loop = False
+            if same_loop:
+                if inspect.iscoroutine(result):
+                    result.close()
+                raise RuntimeError("推送等待须在监听工作线程运行，不能阻塞宿主事件循环。")
 
             async def deliver():
-                return await asyncio.wait_for(result, timeout=3)
+                return await result
 
-            asyncio.run(deliver())
+            future = asyncio.run_coroutine_threadsafe(deliver(), loop)
+            self.delivery_future = future
+            try:
+                if self.stop.is_set():
+                    future.cancel()
+                future.result(timeout=PUSH_TIMEOUT_SECONDS)
+            except TimeoutError:
+                future.cancel()
+                raise TimeoutError("宿主消息推送超过3秒，已取消本次投递。") from None
+            finally:
+                self.delivery_future = None
         self.last_pushed_observation = {
             "connected": bool(payload.get("connected")),
             "telemetryAt": payload.get("telemetryAt"),
@@ -1578,15 +1619,21 @@ class Monitor:
             try:
                 self.tick()
                 self.last_error = ""
+                self.error_count = 0
             except Exception as exc:
+                if self.stop.is_set():
+                    break
                 self.last_error = str(exc)
                 self.error_count += 1
+                self.total_error_count += 1
                 logging.getLogger(__name__).exception("Among Us observer tick failed")
                 self.stop.wait(min(5, 0.5 * self.error_count))
             self.stop.wait(0.1)
 
     def close(self):
         self.stop.set()
+        if self.delivery_future is not None:
+            self.delivery_future.cancel()
         if self.thread:
             self.thread.join(timeout=2)
         with self.bridge.lock:
