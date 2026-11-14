@@ -4,6 +4,7 @@ import ctypes
 import json
 import os
 import subprocess
+import threading
 import time
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from .task_receipts import receipt_for
 
 REPAIR_TASKS = {"FixLights", "RestoreOxy", "FixComms", "ResetReactor"}
 CHILD_LOG_MAX_BYTES = 4 * 1024 * 1024
+PREFLIGHT_TIMEOUT = 8
 
 
 def rotate_child_log(path):
@@ -40,6 +42,10 @@ class StudyBot:
         self.attempts = {}
         self.emergencies = set()
         self.deferred_tasks = []
+        self.preflight_thread = None
+        self._preflight_generation = 0
+        self._pending_preflight = None
+        self._enable_requested = False
         self.result = {"engine": "StudyBot", "state": "disabled", "reason": "尚未检查旧技能包"}
 
     def status(self):
@@ -79,36 +85,86 @@ class StudyBot:
             str(root),
         ]
 
+    @staticmethod
+    def _probe(command, environment):
+        """Only the worker calls this; no plugin or bridge lock is held."""
+        result = subprocess.run(
+            command + ["--preflight"],
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=PREFLIGHT_TIMEOUT,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        if result.returncode:
+            raise ValueError((result.stderr or result.stdout)[-2500:])
+        lines = result.stdout.strip().splitlines()
+        details = json.loads(lines[-1]) if lines else None
+        if not isinstance(details, dict) or details.get("engine") != "StudyBot" or not details.get("skills"):
+            raise ValueError("旧技能包检查没有返回有效的技能清单，请检查Python和原技能目录。")
+        return {**details, "engine": "StudyBot", "state": "ready", "reason": "原技能包导入成功，等待任务窗口"}
+
     def preflight(self):
+        """Synchronous diagnostic for standalone callers, never used by host entries."""
         self.ready = False
         try:
-            result = subprocess.run(
-                self.command() + ["--preflight"],
-                env=self.environment(),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=20,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-            if result.returncode:
-                raise ValueError((result.stderr or result.stdout)[-2500:])
-            lines = result.stdout.strip().splitlines()
-            details = json.loads(lines[-1]) if lines else None
-            if not isinstance(details, dict) or details.get("engine") != "StudyBot" or not details.get("skills"):
-                raise ValueError("旧技能包检查没有返回有效的技能清单，请检查Python和原技能目录。")
+            self.result = self._probe(self.command(), self.environment())
             self.ready = True
-            self.result = {
-                "engine": "StudyBot",
-                "state": "ready",
-                "reason": "原技能包导入成功，等待任务窗口",
-                **details,
-            }
         except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
             self.result = {"engine": "StudyBot", "state": "blocked", "reason": str(exc)}
             raise ValueError(str(exc)) from exc
         return self.status()
+
+    def request_preflight(self, *, enable=False):
+        """Queue an immutable configuration snapshot; coalesce repeated requests."""
+        self._preflight_generation += 1
+        self._enable_requested = enable
+        self.ready = self.enabled = False
+        self._pending_preflight = None
+        try:
+            command, environment = self.command(), self.environment()
+        except (OSError, ValueError) as exc:
+            self.result = {"engine": "StudyBot", "state": "blocked", "reason": str(exc)}
+            return self.status()
+        self.result = {"engine": "StudyBot", "state": "checking", "reason": "正在后台检查技能环境，可继续导航和使用会议功能"}
+        self._pending_preflight = (self._preflight_generation, command, environment)
+        if self.preflight_thread is None:
+            self.preflight_thread = threading.Thread(target=self._check_worker, daemon=True, name="among-us-skill-check")
+            self.preflight_thread.start()
+        return self.status()
+
+    def _check_worker(self):
+        while True:
+            with self.bridge.lock:
+                job, self._pending_preflight = self._pending_preflight, None
+                if job is None:
+                    self.preflight_thread = None
+                    return
+            generation, command, environment = job
+            try:
+                result = self._probe(command, environment)
+            except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+                result = {"engine": "StudyBot", "state": "blocked", "reason": str(exc)}
+            with self.bridge.lock:
+                if generation != self._preflight_generation:
+                    continue
+                self.result = result
+                self.ready = result["state"] == "ready"
+                if self.ready and self._enable_requested:
+                    try:
+                        self._enable_ready()
+                    except (OSError, ValueError) as exc:
+                        self.enabled = False
+                        self.result.update(state="blocked", reason=str(exc))
+
+    def _enable_ready(self):
+        self.bridge.set_runtime("minigameControl", False)
+        self.enabled = True
+        self.result.update(state="ready", reason="原技能包已启用，等待任务窗口")
+        self.attempts.clear()
+        self.seen = None
 
     def set_enabled(self, enabled):
         if enabled:
@@ -116,12 +172,19 @@ class StudyBot:
                 return
             if self.proc is not None and not self.cancel():
                 raise ValueError("旧技能进程尚未停止，暂不启动新的小游戏操作。")
-            self.preflight()
-            self.bridge.set_runtime("minigameControl", False)
-            self.enabled = True
-            self.attempts.clear()
-            self.seen = None
+            if self.result.get("state") == "checking":
+                self._enable_requested = True
+            elif self.ready:
+                self._enable_requested = True
+                self._enable_ready()
+            else:
+                self.request_preflight(enable=True)
         else:
+            # A finished check must never restart a solver stopped by the user,
+            # a connection change or a newer configuration.
+            self._preflight_generation += 1
+            self._pending_preflight = None
+            self._enable_requested = False
             self.enabled = False
             if self.cancel():
                 self.result.update(state="disabled", reason="旧技能已停止")

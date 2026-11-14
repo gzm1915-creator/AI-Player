@@ -186,9 +186,6 @@ class Autopilot:
             self.social.release()
             self.state, self.reason = "waiting", "角色已死亡，停止船员移动"
             return
-        if not state.get("connected"):
-            self.state, self.reason = "waiting", "等待新鲜游戏遥测"
-            return
         identity = self.task_batches.observe(state)
         if identity != self.identity:
             self.identity = identity
@@ -362,7 +359,12 @@ class Autopilot:
             return
         target, task_position, task = min(targets, key=lambda item: self.social.task_cost(pos, item[0]["position"]))
         try:
-            result = self.bridge.navigate(target["anchorId"], task_position)
+            navigation_only = solver.get("enabled") is False
+            result = (
+                self.bridge.navigate(target["anchorId"], interact=False)
+                if navigation_only
+                else self.bridge.navigate(target["anchorId"], task_position)
+            )
             self.pending = result["commandId"]
             self.target = target["anchorId"]
             self.target_task = {
@@ -373,6 +375,8 @@ class Autopilot:
             }
             self.submitted_at = now
             self.state, self.reason = "submitted", "已选择未完成任务附近锚点并提交导航"
+            if navigation_only:
+                self.reason = "技能环境未启用，仅导航到任务点；不会打开或执行小游戏"
             self.last_error = ""
         except (OSError, ValueError, TypeError) as exc:
             self.state, self.reason = "error", str(exc)

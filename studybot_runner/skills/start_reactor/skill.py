@@ -53,11 +53,12 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-import json
+import importlib.util
 import os
 import sys
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -80,6 +81,10 @@ __all__ = [
     "detect_backend",
 ]
 
+_protocol_spec = importlib.util.spec_from_file_location("reactor_protocol_files", Path(__file__).resolve().parents[3] / "files.py")
+_protocol = importlib.util.module_from_spec(_protocol_spec)
+_protocol_spec.loader.exec_module(_protocol)
+
 
 def _write_status_file(path: Optional[str], payload: dict) -> None:
     """Atomically publish the live skill state for the in-game HUD."""
@@ -96,15 +101,7 @@ def _write_status_file(path: Optional[str], payload: dict) -> None:
         ),
         **payload,
     }
-    temporary = target + ".tmp"
-    with open(temporary, "w", encoding="utf-8") as stream:
-        json.dump(
-            payload,
-            stream,
-            ensure_ascii=False,
-            separators=(",", ":"),
-        )
-    os.replace(temporary, target)
+    _protocol.atomic(target, payload)
 
 
 # --------------------------------------------------------------------------

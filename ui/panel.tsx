@@ -76,7 +76,7 @@ export default function AmongUsPanel(props: PluginSurfaceProps<any>) {
       {!canControl && <Alert tone="warning">请先点击页面右上角“启动”，再刷新面板。</Alert>}
       <Card title="游戏连接"><Stack>
         <Inline><StatusBadge tone={game.connected ? "success" : "warning"} label={game.connected ? "游戏已连接" : "等待游戏遥测"} />
-          <StatusBadge tone={observer.alive && !observer.paused ? "success" : "warning"} label={observer.paused ? "监听已暂停" : observer.alive ? "监听运行中" : "监听未启动"} /></Inline>
+          <StatusBadge tone={observer.alive && !observer.paused && !observer.stopping ? "success" : "warning"} label={observer.stopping ? "监听正在退出" : observer.paused ? "监听已暂停" : observer.alive ? "监听运行中" : "监听未启动"} /></Inline>
         <Text>当前目录：{state.gameDir || "未设置"}</Text>
         <Field label="Among Us 游戏目录" help="Steam → Among Us → 管理 → 浏览本地文件，复制含 Among Us.exe 的目录。">
           <Input value={path} onChange={setPath} placeholder="在这里输入完整游戏目录" /></Field>
@@ -169,12 +169,14 @@ export default function AmongUsPanel(props: PluginSurfaceProps<any>) {
         <Text>导航状态：{game.navigation?.state || "未知"} · 目标：{game.navigation?.targetAnchorId ? targetLabel(game.navigation.targetAnchorId) : "无"} · 导航错误：{game.navigation?.error || "无"}</Text>
         <Text>监听心跳距今：{observer.heartbeatAge == null ? "尚无" : `${observer.heartbeatAge} 秒`} · 遥测时间：{game.telemetryAt || "尚无"}</Text>
         {(observer.lastError || game.error) && <Alert tone="danger">{observer.lastError || game.error}</Alert>}
+        {!observer.lastError && observer.lastFailure && <Text>最近一次监听异常（{observer.lastFailure.atUtc}）：{observer.lastFailure.message}</Text>}
+        {game.routeDataError && <Alert tone="warning">{game.routeDataError}</Alert>}
         <Tip>完成情况以游戏任务进度为准；未完成目标冷却后可重试。小游戏开启时等待执行器，不会同时移动。普通语音不会自动转成游戏聊天。</Tip>
         <Field label="目的地类型"><Select value={targetCategory} onChange={value => {setTargetCategory(value); setAnchor("")}} options={[{value: "task", label: "任务地点"}, {value: "waypoint", label: "房间入口与通道"}, {value: "all", label: "全部地点（含通风口）"}]} /></Field>
         <Field label="手动导航目标" help="按中文房间和用途选择；靠近任务点不代表已经完成任务。"><Select value={destinations.some(a => a.anchorId === anchor) ? anchor : ""} onChange={setAnchor} options={[{value: "", label: "请选择想去的地点"}, ...destinations.map(a => ({value: a.anchorId, label: a.label}))]} /></Field>
         <Button disabled={busy || !canControl || !game.connected || !destinations.some(a => a.anchorId === anchor)} onClick={() => control("navigate", {anchor_id: anchor})}>前往这个地点</Button>
         <Button disabled={busy || !canControl || !game.connected || !minigame.ready} onClick={() => runtime("minigameControl", !minigame.enabled)}>{minigame.enabled ? "关闭小游戏操作" : "开启小游戏操作"}</Button>
-        <Text>小游戏执行器：StudyBot · {minigame.state || "尚未加载"} · 任务：{minigame.taskType || "等待任务窗口"}</Text>
+        <Text>小游戏执行器：StudyBot · {minigame.state === "checking" ? "正在后台检查环境" : minigame.state || "尚未加载"} · 任务：{minigame.taskType || "等待任务窗口"}</Text>
         <Text>{minigame.reason || "请先检查旧技能包加载；游戏端建议使用 0.6.80。"} · 已尝试 {minigame.attempts || 0}/3 次</Text>
         {(minigame.deferredTasks || []).map((t: any) => <Text key={`sample-${t.taskId}`}>检查样本：培养中，剩余约 {Math.ceil(t.remainingSeconds ?? 0)} 秒；已安排离开，准备好后返回。</Text>)}
         <Tip>检查样本分两次：启动培养后离开做其他任务，按游戏倒计时判断何时返回；等待不消耗选择样本的重试次数，也不算任务完成。</Tip>

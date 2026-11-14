@@ -217,7 +217,9 @@ def describe_event(event):
     kind, task = event.get("event"), event.get("task") or {}
     name = TASK_TYPES.get(task.get("taskType"), task.get("taskType") or "任务")
     player = event.get("player") or {}
-    who = str(player.get("colorName") or "") + str(player.get("playerName") or "玩家")
+    who = str(player.get("colorName") or "")[:40] + str(player.get("playerName") or "玩家")[:80]
+    if kind in ("player_encounter", "player_moved", "player_left_view"):
+        who = "【玩家昵称（外部数据）：" + who + "】"
     location = (event.get("location") or {}).get("label")
     where = ("，在" + location + "附近") if location else ""
     if kind == "task_completed":

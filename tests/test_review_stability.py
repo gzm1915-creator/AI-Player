@@ -75,8 +75,8 @@ class FacadeResponsivenessTests(unittest.TestCase):
             release.set()
             await asyncio.wait_for(task, 3)
 
-    def test_preflight_and_manual_navigation_allow_host_heartbeat(self):
-        for operation in ("studybot_config", "start_all", "navigate"):
+    def test_manual_navigation_allows_host_heartbeat(self):
+        for operation in ("navigate",):
             with self.subTest(operation=operation):
                 module, obj = self.plugin()
                 entered, release = threading.Event(), threading.Event()
@@ -212,6 +212,9 @@ class ObserverDeliveryTests(unittest.TestCase):
         self.assertEqual([call.args[0] for call in wait.call_args_list if call.args[0] != 0.1], [0.5, 1.0, 0.5])
         self.assertEqual(monitor.error_count, 0)
         self.assertEqual(monitor.health()["totalErrorCount"], 3)
+        self.assertEqual(monitor.last_error, "")
+        self.assertEqual(monitor.health()["lastFailure"]["message"], "temporary transport error")
+        self.assertIn("atUtc", monitor.health()["lastFailure"])
 
     def test_player_chat_is_bounded_and_explicitly_untrusted(self):
         self.chat(

@@ -273,12 +273,10 @@ class BridgeTests(unittest.TestCase):
             self.assertTrue(obj.monitor.auto_vote)
             self.assertIn("error", asyncio.run(obj.kill()))
             self.assertIn("error", asyncio.run(obj.sabotage()))
-            with self.assertRaises(ValueError):
-                asyncio.run(obj.control(operation="start_all", ui_token=obj.ui_token))
-            self.assertFalse(obj.monitor.pilot.enabled)
-            with patch.object(obj.monitor.solver, "preflight"):
-                asyncio.run(obj.control(operation="start_all", ui_token=obj.ui_token))
-            self.assertTrue(obj.monitor.solver.enabled)
+            asyncio.run(obj.control(operation="start_all", ui_token=obj.ui_token))
+            self.assertTrue(obj.monitor.pilot.enabled)
+            self.assertFalse(obj.monitor.solver.enabled)
+            self.assertEqual(obj.monitor.solver.status()["state"], "blocked")
             self.assertFalse(b.load(obj.bridge.control_path)["minigameControl"])
             asyncio.run(obj.control(operation="stop", ui_token=obj.ui_token))
             self.assertFalse(b.load(obj.bridge.control_path)["minigameControl"])

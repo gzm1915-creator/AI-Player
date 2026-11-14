@@ -6,7 +6,6 @@ import importlib
 import importlib.util
 import json
 import os
-import subprocess
 import sys
 import time
 import traceback
@@ -146,20 +145,6 @@ def request_close_minigame() -> None:
         except (OSError, json.JSONDecodeError, KeyError, TypeError):
             return
         time.sleep(0.1)
-
-    helper = PROJECT_ROOT / "work" / "close_game_minigame.py"
-    if helper.is_file():
-        try:
-            subprocess.run(
-                [sys.executable, str(helper)],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=3,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            pass
-
 
 def send_plugin_action(
     action: str,
@@ -602,7 +587,7 @@ def reactor_capture_events() -> list[dict]:
         if offset > size:
             offset = 0
         events: list[dict] = []
-        with manifest.open("rb") as stream:
+        with protocol.open_shared(manifest) as stream:
             stream.seek(offset)
             consumed = 0
             for raw_line in stream:
@@ -613,7 +598,7 @@ def reactor_capture_events() -> list[dict]:
                     event = json.loads(raw_line.decode("utf-8", errors="replace"))
                 except (UnicodeDecodeError, json.JSONDecodeError):
                     continue
-                if event.get("event") == "capture":
+                if isinstance(event, dict) and event.get("event") == "capture":
                     events.append(event)
             _REACTOR_MANIFEST_OFFSETS[str(manifest)] = offset + consumed
         return events
@@ -959,25 +944,53 @@ def _recent_reactor_flash_history(
 ) -> list[int]:
     """Recover flashes from the latest open minigame segment."""
     rows: list[tuple[str, bool, tuple[int, ...]]] = []
+    candidates = []
     for path in PLUGIN_ROOT.glob("telemetry*.jsonl"):
         try:
-            with path.open("rb") as stream:
-                raw_lines = stream.read().splitlines()
+            candidates.append((path.stat().st_mtime_ns, path))
+        except OSError:
+            continue
+    paths = [path for _, path in sorted(candidates, reverse=True)[:4]]
+    for path in paths:
+        try:
+            with protocol.open_shared(path) as stream:
+                size = stream.seek(0, 2)
+                offset = max(0, size - 256 * 1024)
+                stream.seek(offset)
+                raw = stream.read(256 * 1024)
+            raw_lines = raw.splitlines(keepends=True)
+            if offset:
+                raw_lines = raw_lines[1:]  # The tail may start in the middle of a JSON row.
         except OSError:
             continue
         for raw_line in raw_lines:
+            if not raw_line.endswith(b"\n"):
+                continue  # Leave an in-progress writer's last row for a later read.
             try:
                 value = json.loads(raw_line.decode("utf-8", errors="replace"))
             except (UnicodeDecodeError, json.JSONDecodeError):
                 continue
-            if value.get("sessionId") != session_id:
+            if not isinstance(value, dict) or value.get("sessionId") != session_id:
                 continue
             ui = value.get("ui") or {}
+            if not isinstance(ui, dict):
+                continue
+            indices = ui.get("startReactorLitIndices") or []
+            if not isinstance(indices, list) or len(indices) > 9:
+                continue
+            try:
+                if any(type(index) not in (int, str) for index in indices):
+                    continue
+                lit = tuple(int(index) for index in indices)
+            except (ValueError, TypeError):
+                continue
+            if any(index < 0 or index > 8 for index in lit):
+                continue
             rows.append(
                 (
                     str(value.get("sentAtUtc", "")),
                     bool(ui.get("minigameOpen")),
-                    tuple(int(index) for index in (ui.get("startReactorLitIndices") or [])),
+                    lit,
                 )
             )
 

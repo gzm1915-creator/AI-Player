@@ -331,7 +331,7 @@ class AmongUsNekoPlugin(NekoPluginBase):
                 )
                 atomic(self._settings_path(), self.settings)
                 self.monitor.solver.settings = self.settings
-                return Ok(self.monitor.solver.preflight())
+                return Ok(self.monitor.solver.request_preflight())
         arguments = (
             operation,
             game_dir,

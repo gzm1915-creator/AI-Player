@@ -70,6 +70,7 @@ class Bridge:
         self.new_encounter = False
         self.route_data = None
         self.route_data_stamp = None
+        self.route_error = ""
         self.history_error = ""
         self.task_binding = None
         self.released_navigation = set()
@@ -440,6 +441,7 @@ class Bridge:
                 player["presence"] = "visible_now"
                 player["location"] = self.reference_location(player_xy)
         state["vents"] = vent_options(state, self.route_data or [])
+        state["routeDataError"] = self.route_error
         state["capabilities"] = self.capabilities(state)
         try:
             if self.journal.observe(state):
@@ -616,6 +618,16 @@ class Bridge:
                 stamp = None
             if self.route_data is None or stamp != self.route_data_stamp:
                 self.route_data = load(path).get("anchors", [])
+                if not isinstance(self.route_data, list) or not all(
+                    isinstance(anchor, dict)
+                    and isinstance(anchor.get("anchorId"), str)
+                    and isinstance(anchor.get("position", {}), dict)
+                    for anchor in self.route_data
+                ):
+                    self.route_data = []
+                self.route_error = (
+                    "" if self.route_data else "路线数据缺失或无效，请重新安装游戏组件的数据目录 data/skeld-route-observations.json。"
+                )
                 self.route_data_stamp = stamp
             return self.route_data
 
@@ -1119,6 +1131,8 @@ class Bridge:
         ):
             raise ValueError("目标位于本局击杀现场避让区，请选择其他地点。")
         if anchor_id not in {a["anchorId"] for a in self.anchors()}:
+            if self.route_error:
+                raise ValueError(self.route_error)
             raise ValueError("未知锚点；先调用 among_us_state 查询真实可用锚点。")
         nav = state["navigation"]
         released_pause = nav.get("state") == "paused" and nav.get("commandId") in self.released_navigation
@@ -1264,6 +1278,7 @@ class Monitor:
         self.observations = {}
         self.last_tick = 0.0
         self.last_error = ""
+        self.last_failure = None
         self.error_count = 0
         self.total_error_count = 0
         self.host_loop = host_loop
@@ -1292,9 +1307,11 @@ class Monitor:
     def health(self):
         return {
             "alive": bool(self.thread and self.thread.is_alive()),
+            "stopping": bool(self.thread and self.thread.is_alive() and self.stop.is_set()),
             "paused": self.paused,
             "heartbeatAge": round(time.monotonic() - self.last_tick, 1) if self.last_tick else None,
             "lastError": self.last_error,
+            "lastFailure": self.last_failure,
             "errorCount": self.error_count,
             "totalErrorCount": self.total_error_count,
             "pushCount": self.push_count,
@@ -1310,6 +1327,8 @@ class Monitor:
 
     def start(self):
         if self.thread and self.thread.is_alive():
+            if self.stop.is_set():
+                raise ValueError("旧监听线程仍在退出，暂不能恢复；请稍后重试，若持续出现请重载插件。")
             return
         self.stop.clear()
         self.thread = threading.Thread(target=self.run, daemon=True, name="among-us-observer")
@@ -1624,6 +1643,7 @@ class Monitor:
                 if self.stop.is_set():
                     break
                 self.last_error = str(exc)
+                self.last_failure = {"message": str(exc), "atUtc": datetime.now(timezone.utc).isoformat()}
                 self.error_count += 1
                 self.total_error_count += 1
                 logging.getLogger(__name__).exception("Among Us observer tick failed")

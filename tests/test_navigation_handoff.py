@@ -359,6 +359,17 @@ class NavigationHandoffTests(unittest.TestCase):
         self.assertTrue(wait.called)
         self.assertEqual(b.load(self.bridge.command_path)["action"], "navigate")
 
+    def test_no_solver_navigates_without_opening_minigames_or_claiming_progress(self):
+        self.monitor.solver.enabled = False
+        self.tick(100)
+        command = b.load(self.bridge.command_path)
+        self.assertEqual(command["action"], "navigate")
+        self.assertFalse(command["interactAfterArrival"])
+        self.assertNotIn("targetTaskId", command)
+        self.assertTrue(self.monitor.pilot.enabled)
+        self.assertIn("仅导航", self.monitor.pilot.reason)
+        self.assertFalse(any(t.get("complete") for t in self.bridge.read()["tasks"]))
+
     def test_no_move_is_sent_when_game_never_confirms_enable(self):
         b.atomic(self.bridge.runtime_status_path, {"autoNavigation": False, "revision": 0})
         clock = [100.0]

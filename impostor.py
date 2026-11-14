@@ -4,6 +4,7 @@ Mechanisms inspired by the user-supplied DeepBot. Uses only this bridge's
 local observations and verified route anchors; never creates virtual players.
 """
 
+import logging
 import math
 import random
 import time
@@ -1061,6 +1062,8 @@ class BasicImpostor:
             else:
                 self.result.update(state="waiting", reason="暂无可用掩护点或巡场路线；等待新观察或路线冷却")
         except (ValueError, OSError, KeyError, TypeError) as exc:
+            if isinstance(exc, (KeyError, TypeError)):
+                logging.getLogger(__name__).exception("Among Us impostor decision failed")
             self.submitted = now
             self.result.update(state="error", reason=str(exc))
 

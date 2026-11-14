@@ -27,6 +27,19 @@ def path_between(vents, start, target):
     return []
 
 
+def reachable_vents(nodes, start):
+    """One traversal per origin rather than one traversal per target."""
+    visited, queue = {start}, deque([start])
+    while queue and len(visited) <= 64:
+        current = queue.popleft()
+        for key in ("leftId", "rightId", "centerId"):
+            neighbor = nodes[current].get(key)
+            if type(neighbor) is int and neighbor in nodes and neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return visited
+
+
 def vent_options(state, anchors):
     role = state.get("ventRole") or {}
     if not state.get("connected") or role.get("roleType") != "Impostor" or not role.get("canVent"):
@@ -46,7 +59,9 @@ def vent_options(state, anchors):
         for v in state.get("vents", [])
         if type(v.get("id")) is int and all(type(v.get(k)) in (float, int) and math.isfinite(v[k]) for k in ("x", "y"))
     ]
+    nodes = {v["id"]: v for v in vents}
     for v in vents:
+        connected = reachable_vents(nodes, v["id"])
         reference = min(
             references, key=lambda a: math.hypot(a["position"]["x"] - v["x"], a["position"]["y"] - v["y"]), default=None
         )
@@ -64,7 +79,7 @@ def vent_options(state, anchors):
                 **v,
                 "label": f"{label} · 管道 #{v['id']}",
                 "distance": round(own_distance, 2) if own_distance is not None else None,
-                "connectedVentIds": [other["id"] for other in vents if path_between(vents, v["id"], other["id"])],
+                "connectedVentIds": [other["id"] for other in vents if other["id"] in connected],
                 "entryInRange": own_distance is not None and own_distance <= max(0, v.get("usableDistance", 0)),
             }
         )

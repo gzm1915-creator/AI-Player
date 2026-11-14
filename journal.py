@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .files import atomic
 from .spatial import route_summary
 from .task_receipts import valid_receipts
 
@@ -433,9 +434,7 @@ class Journal:
             if self.path is None or not self.dirty:
                 return
             path = self.path / "summary.json"
-            temp = path.with_suffix(".tmp")
-            temp.write_text(json.dumps(self.doc, ensure_ascii=False), encoding="utf-8")
-            temp.replace(path)
+            atomic(path, self.doc)
             self.last_flush = self.doc.get("lastTimestamp", 0)
             self.dirty = False
 
@@ -499,9 +498,7 @@ class Journal:
             stamp = datetime.now(timezone.utc).isoformat()
             if all_matches:
                 self.root.mkdir(parents=True, exist_ok=True)
-                temp = self.root / "control.tmp"
-                temp.write_text(json.dumps({"clearedAt": stamp}), encoding="utf-8")
-                temp.replace(self.root / "control.json")
+                atomic(self.root / "control.json", {"clearedAt": stamp})
                 self.cleared_at = stamp
             identity = self.doc.get("identity")
             self.doc = {

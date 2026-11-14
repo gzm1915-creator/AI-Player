@@ -44,6 +44,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "
 1. 安装 Windows [Python](https://www.python.org/downloads/windows/) 3.10+，执行 `python -m pip install numpy Pillow`。
 2. 单独获取 [StudyBot / bot-among-us](https://github.com/iribarnesy/bot-among-us)，准备含 `src/tasks.py` 的原技能目录。包内不含完整上游源码或游戏提取素材，上游版本可能与此前验证版本不同。
 3. 面板“原 StudyBot 技能包”填写 `python.exe` 和技能目录绝对路径，保存并检查加载。导入成功不代表所有任务已实机通过。
+   环境检查在后台执行，最长约 8 秒，面板显示检查结果；检查期间可以使用会议和连接面板。未配置或检查失败时，自动游玩仍可启动导航及内鬼逻辑，船员只导航到任务点，不打开或执行小游戏。停止、重新连接或改配置后，旧检查结果不会重新启用技能。
 4. 氧气修复另需 `python -m pip install opencv-python`，以及含英文数据的 [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki)，放入 PATH 或设置 `TESSERACT_CMD`。包内兼容层不提供完整 OpenCV/OCR。
 
 操作小游戏时保持游戏前台并移开遮挡游戏的桌宠浮窗。不要同时运行旧会议桥、旧自动游玩脚本或其他输入控制器。
@@ -78,7 +79,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -GameDir "
 
 引用 StudyBot 小游戏技能链，参考 Among Us DeepBot 普通内鬼策略设计，并使用 BepInEx 与 N.E.K.O. SDK。具体范围与授权核对见 [THIRD_PARTY.md](THIRD_PARTY.md)。本市场源码仓库不含游戏 DLL、旧安装包、游戏本体、AI 宿主、个人历史或模型密钥；游戏组件单独下载。
 
-历史功能、实机验证边界见 [SELF_CHECK.md](SELF_CHECK.md)，会议策略见 [MEETING_STRATEGY.md](MEETING_STRATEGY.md)。历史文档保留当时状态，当前安装步骤以本文为准。0.1.37 修复异步入口阻塞、推送循环归属、错误恢复和小游戏文件交接，增加技能日志轮转并移除无调用者的私有素材识别代码；游戏组件仍为 0.6.91。审查逐项核对见 [REVIEW_FIXES.md](REVIEW_FIXES.md)。
+历史功能、实机验证边界见 [SELF_CHECK.md](SELF_CHECK.md)，会议策略见 [MEETING_STRATEGY.md](MEETING_STRATEGY.md)。历史文档保留当时状态，当前安装步骤以本文为准。0.1.37 修复异步入口阻塞、推送循环归属、错误恢复和小游戏文件交接，增加技能日志轮转并移除无调用者的私有素材识别代码；复查修订进一步将技能检查移到后台、允许未配置技能时启动导航，并限制反应堆历史读取。游戏组件仍为 0.6.91。两次审查核对见 [REVIEW_FIXES.md](REVIEW_FIXES.md) 和 [REVIEW_FOLLOWUP.md](REVIEW_FOLLOWUP.md)。
+
+配置的 Python 和 StudyBot 目录会在本机执行代码，仅选择自己信任的解释器和技能源码。面板令牌用于区分设置入口和 AI 游玩工具，不是隔离恶意本机程序的安全沙箱；AI 的击杀、破坏和管道入口仍受游戏状态与权限校验。已移除从历史数据目录执行额外关窗脚本的兼容入口。
 
 卸载前停止插件并退出游戏，备份记录后通过宿主卸载适配器，移除 `BepInEx/plugins/AUTelemetryProbe` 及独立配置 `BepInEx/config/com.dsh.autelprobe.cfg`。BepInEx 按官方说明卸载，保留其他模组需要的文件。
 
